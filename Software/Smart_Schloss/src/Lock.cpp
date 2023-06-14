@@ -15,6 +15,6 @@ int Lock::OpenLock(String UID){
   UID="";
   return 1; 
 }   
-
+delay(1000);
 return 0;
 }

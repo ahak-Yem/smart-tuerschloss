@@ -34,8 +34,8 @@ void RFID::set_UID(){
   content.toUpperCase();
   Serial.println("Authorized access !");
   Serial.println();
-  delay(30);
   UID=content;
+  readerX.PICC_HaltA(); // Halt the tag
 }
 
 void RFID::set_UID_NULL()
