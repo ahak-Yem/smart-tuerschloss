@@ -42,3 +42,4 @@ void RFID::set_UID_NULL()
 {
   UID="";
   }
+ 

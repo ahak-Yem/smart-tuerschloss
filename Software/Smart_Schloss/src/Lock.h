@@ -7,5 +7,4 @@ class Lock{
     public: 
     void setup();
     int OpenLock(String UID);
-
 };
