@@ -38,15 +38,31 @@ Semester: 05
   + USB-Kabel zum Anschließen des ESP32 an den Computer
 
 ## Installationsschritte
-* Projekt herunterladen: Laden Sie das Projekt von der entsprechenden Quelle herunter und entpacken Sie es an  einem beliebigen Speicherort auf Ihrem Computer.
+### 1 Projekt klonen: 
+Klonen Sie das Projekt entweder über SSH oder HTTPS von GitLab:
 
-  Visual Studio Code öffnen: Öffnen Sie Visual Studio Code auf Ihrem Computer.
+#### SSH:
+```
+git clone git@gitlab.rz.htw-berlin.de:fachpro-23/03-smart-tuerschloss.git
+```
 
-  Projektordner öffnen: Wählen Sie in Visual Studio Code "File" (Datei) in der oberen Menüleiste und klicken   Sie dann auf "Open Folder" (Ordner öffnen). Navigieren Sie zum heruntergeladenen Projektordner und wählen Sie ihn aus, um ihn zu öffnen.
+#### HTTPS:
+```
+git clone https://gitlab.rz.htw-berlin.de/fachpro-23/03-smart-tuerschloss.git.
 
-  PlatformIO konfigurieren: Öffnen Sie die PlatformIO-Konfiguration, indem Sie auf das PlatformIO-Symbol in der linken Seitenleiste klicken und dann auf "Open Project Configuration" (Projektkonfiguration öffnen) klicken. Stellen Sie sicher, dass das Freenove ESP32 Wrover-Dev Board in der Konfigurationsdatei ausgewählt ist.
+```
 
-  Bibliotheken installieren: Öffnen Sie die PlatformIO Library Manager, indem Sie auf das PlatformIO-Symbol in der linken Seitenleiste klicken und dann auf "Libraries" (Bibliotheken) klicken. 
+### 2 Projektordner öffnen:
+
+ Wählen Sie in Visual Studio Code "File" (Datei) in der oberen Menüleiste und klicken   Sie dann auf "Open Folder" (Ordner öffnen). Navigieren Sie zum heruntergeladenen Projektordner und wählen Sie ihn aus, um ihn zu öffnen.
+
+### 3 PlatformIO konfigurieren:
+
+Öffnen Sie die PlatformIO-Konfiguration, indem Sie auf das PlatformIO-Symbol in der linken Seitenleiste klicken und dann auf "Open Project Configuration" (Projektkonfiguration öffnen) klicken. Stellen Sie sicher, dass das Freenove ESP32 Wrover-Dev Board in der Konfigurationsdatei ausgewählt ist.
+
+### 4 Bibliotheken installieren:
+
+ Öffnen Sie die PlatformIO Library Manager, indem Sie auf das PlatformIO-Symbol in der linken Seitenleiste klicken und dann auf "Libraries" (Bibliotheken) klicken. 
 Suchen Sie nach den Bibliotheken und installieren : 
  + "Arduino" 
  + "MFRC522" 
@@ -54,9 +70,10 @@ Suchen Sie nach den Bibliotheken und installieren :
 
   Externe Bibliothek "quirc.h" einbinden: Laden Sie die externe Bibliothek "quirc.h" von folgender URL herunter: https://github.com/dlbeer/quirc. Entpacken Sie das heruntergeladene Archiv und kopieren Sie den Ordner "quirc" in das Verzeichnis "lib" im Projektordner.
 
-  Verbindung herstellen: Verbinden Sie den ESP32 über das USB-Kabel mit Ihrem Computer. Stellen Sie sicher, dass der richtige Port in der PlatformIO-Konfiguration ausgewählt ist, um die Verbindung herzustellen.
+### Code einführen : 
+* Verbindung herstellen: Verbinden Sie den ESP32 über das USB-Kabel mit Ihrem Computer. Stellen Sie sicher, dass der richtige Port in der PlatformIO-Konfiguration ausgewählt ist, um die Verbindung herzustellen.
 
-Code kompilieren und hochladen: Klicken Sie auf das PlatformIO-Symbol in der linken Seitenleiste und wählen Sie "Upload" (Hochladen), um den Code auf den ESP32 zu kompilieren und hochzuladen. Überprüfen Sie die Ausgabe in der Konsole, um sicherzustellen, dass der Vorgang erfolgreich abgeschlossen wurde.
+  Code kompilieren und hochladen: Klicken Sie auf das PlatformIO-Symbol in der linken Seitenleiste und wählen Sie "Upload" (Hochladen), um den Code auf den ESP32 zu kompilieren und hochzuladen. Überprüfen Sie die Ausgabe in der Konsole, um sicherzustellen, dass der Vorgang erfolgreich abgeschlossen wurde.
 
 ## Links,Hinweise 
-* 0. 
+
