@@ -52,13 +52,13 @@ git clone https://gitlab.rz.htw-berlin.de/fachpro-23/03-smart-tuerschloss.git.
 
 ```
 
-### 2 Projektordner öffnen:
+### 2 Projektordner auswählen:
 
- Wählen Sie in Visual Studio Code "File" (Datei) in der oberen Menüleiste und klicken   Sie dann auf "Open Folder" (Ordner öffnen). Navigieren Sie zum heruntergeladenen Projektordner und wählen Sie ihn aus, um ihn zu öffnen.
+ Navigieren Sie zum heruntergeladenen Projektordner und wählen Sie ihn aus, um ihn zu öffnen.
 
 ### 3 PlatformIO konfigurieren:
 
-Öffnen Sie die PlatformIO-Konfiguration, indem Sie auf das PlatformIO-Symbol in der linken Seitenleiste klicken und dann auf "Open Project Configuration" (Projektkonfiguration öffnen) klicken. Stellen Sie sicher, dass das Freenove ESP32 Wrover-Dev Board in der Konfigurationsdatei ausgewählt ist.
+Öffnen Sie die PlatformIO-Konfiguration, indem Sie auf das PlatformIO-Symbol in der linken Seitenleiste klicken und dann auf "pick a folder " klicken.
 
 ### 4 Bibliotheken installieren:
 
@@ -76,4 +76,7 @@ Suchen Sie nach den Bibliotheken und installieren :
   Code kompilieren und hochladen: Klicken Sie auf das PlatformIO-Symbol in der linken Seitenleiste und wählen Sie "Upload" (Hochladen), um den Code auf den ESP32 zu kompilieren und hochzuladen. Überprüfen Sie die Ausgabe in der Konsole, um sicherzustellen, dass der Vorgang erfolgreich abgeschlossen wurde.
 
 ## Links,Hinweise 
+  0. https://code.visualstudio.com/docs 
+  1. https://docs.platformio.org/en/latest/ 
+  2. https://randomnerdtutorials.com/getting-started-freenove-esp32-wrover-cam/
 
