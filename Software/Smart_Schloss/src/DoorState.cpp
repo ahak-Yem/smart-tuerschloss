@@ -7,9 +7,13 @@ void DoorState::setup(){
 }
 
 void DoorState::checkState(){
-    if(Sensor == LOW){
+    state = digitalRead(Sensor);
+    if(state == LOW){
         digitalWrite(GreenLED,HIGH);
-        delay(1000);
-        state = "auf";
+        delay(10);
+    }
+    else{
+        digitalWrite(GreenLED,LOW);
+        delay(10);
     }
 }

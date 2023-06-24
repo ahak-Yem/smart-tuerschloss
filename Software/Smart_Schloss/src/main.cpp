@@ -4,7 +4,6 @@
 #include<Lock.h>
 #include<DoorState.h>
 
-const int GreenLED =13;
 int lockState=-1;
 RFID rfid;
 Lock lock1;
@@ -17,7 +16,6 @@ void setup() {
 }
 
 void loop() {
-
   doorstate.checkState();
   rfid.set_UID();
   String content=rfid.get_UID();
