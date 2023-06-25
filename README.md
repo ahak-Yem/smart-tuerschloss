@@ -7,23 +7,17 @@
   -Heltonn Harold
   -Ahmed Kutbi 
 
-* Team: **04**
+* Team: **03**
 * Semester: **05**
 
-Team: 04
-
-
-Semester: 05
-
-
 ## Projektziel : 
-* Das Ziel dieses Projekts ist die Entwicklung eines Smartes Schlosses und eines Buchungssystems für den Urban Garden an der Hochschule für Technik und Wirtschaft Berlin (HTW). Das intelligente Schloss dient der sicheren  Aufbewahrung des Schlüssels für den Zugang zum Urban Garden und ermöglicht nur autorisierten Personen den Zugang. Das Buchungssystem ermöglicht den Nutzern die einfache Überprüfung der Werkzeugverfügbarkeit und die Buchung von Ressourcen. Durch die Implementierung dieses Tool-Management-Systems streben wir an, die Effizienz und Transparenz bei der Nutzung der Ressourcen im Urban Garden zu verbessern und zukünftige studentische Initiativen zu unterstützen.
+* Das Ziel dieses Projekts ist die Entwicklung eines Smartes Schlosses und eines Buchungssystems für den Urban Garden an der Hochschule für Technik und Wirtschaft Berlin (HTW). Das intelligente Schloss dient der sicheren  Aufbewahrung des Schlüssels für den Zugang zum Urban Garden und ermöglicht nur autorisierten Personen den Zugang. Das Buchungssystem ermöglicht den Nutzern die einfache Überprüfung der Schlüsselverfügbarkeit und die Buchung von Ressourcen. Durch die Implementierung dieses Systems streben wir an, die Effizienz und Transparenz bei der Nutzung der Ressourcen im Urban Garden zu verbessern und zukünftige studentische Initiativen zu unterstützen.
 
 * Funktionalitäten : 
 
   -Implementierung eines sicheren Schließsystems zur Zugangskontrolle
  
-  -Benutzerfreundliches Buchungssystem zur Überprüfung von Werkzeugverfügbarkeit und Buchung von Ressourcen
+  -Benutzerfreundliches Buchungssystem zur Überprüfung von Schlüsselverfügbarkeit und Buchung von Ressourcen
 
   -Verbesserung der Ordnung, Sicherheit und Effizienz im Urban Garden
 

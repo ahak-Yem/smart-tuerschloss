@@ -3,9 +3,9 @@
 class DoorState
 {
 private:
-  String state;
+  int state;
   const int GreenLED =13;
-  const int Sensor= 33;
+  const int Sensor= 15;
 
 public:
     void checkState();
