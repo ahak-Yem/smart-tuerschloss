@@ -21,20 +21,29 @@
 //  #define B6 13
 //  #define B7 14
 //........................ -> // Uncomment the wished line when using the MCP23017
-
+int doorSensorsPins[] = {13};
 int lockState=-1;
 RFID rfid;
 Lock lock1;
-DoorState doorstate;
+DoorState doorSensor(doorSensorsPins, sizeof(doorSensorsPins) / sizeof(doorSensorsPins[0]));
+
 
 void setup() {
   rfid.setup();
   lock1.setup();
-  doorstate.setup();
 }
 
 void loop() {
-  doorstate.checkState();
+  std::vector<uint8_t> readDoorState = doorSensor.ReadAllPins(doorSensorsPins);
+
+  for (size_t i = 0; i < readDoorState.size(); i++) {
+    if (readDoorState[i] == HIGH) {
+      //do something if door is open
+    } else if (readDoorState[i] == LOW) {
+      //do something if door is closed
+    }
+  }
+
   rfid.set_UID();
   String content=rfid.get_UID();
   lockState=lock1.OpenLock(content);

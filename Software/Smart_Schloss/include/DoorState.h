@@ -1,13 +1,17 @@
 #include <Arduino.h>
-#include <string.h>
-class DoorState
-{
+#include <vector>
+#ifndef DOORSTATE_H
+#define DOORSTATE_H
+
+class DoorState {
 private:
-  int state;
-  const int GreenLED =13;
-  const int Sensor= 15;
+  std::vector<int> DoorSensorsPin;
 
 public:
-    void checkState();
-    void setup();
+  DoorState(int* doorSensorsPins, int numberOfPins);
+
+  uint8_t ReadPin(uint8_t pin);
+  std::vector<uint8_t> ReadAllPins(int* allPins);
+  std::vector<uint8_t> getSensorPins();
 };
+#endif 
