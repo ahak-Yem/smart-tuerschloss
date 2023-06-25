@@ -1,8 +1,9 @@
 #include <Arduino.h>
-#include <string>
 #include <RFID.h>
 #include<Lock.h>
 #include<DoorState.h>
+#include<PinsExpander.h>
+#include<ManagingWifi.h>
 
 //Use this variables to turn the wished MCP23017 pin(s) on/off.
 //  #define A0 0    
@@ -21,16 +22,26 @@
 //  #define B6 13
 //  #define B7 14
 //........................ -> // Uncomment the wished line when using the MCP23017
-int doorSensorsPins[] = {13};
+
+const char* ssid_Router = "Yemen";
+const char* password_Router = "123456789"; // TODO: Make it suitable to the wifi network used at the end
+
+int doorSensorsPins[] = {13}; //Write the pin(s) where the sensor(s) is connected to.
+
 int lockState=-1;
+
+//Objects of our hard coded classes.
 RFID rfid;
 Lock lock1;
 DoorState doorSensor(doorSensorsPins, sizeof(doorSensorsPins) / sizeof(doorSensorsPins[0]));
+PinsExpander pinsExpander;
+ManagingWifi wifiManager(ssid_Router,password_Router);
 
-
+//For DoorState & Wifi there are no setup methods, because they are built with constructor.
 void setup() {
   rfid.setup();
   lock1.setup();
+  pinsExpander.setup();
 }
 
 void loop() {
