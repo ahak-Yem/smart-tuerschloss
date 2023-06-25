@@ -11,7 +11,7 @@ Adafruit_MCP23X17 mcp; //MCP23017 instance
 TwoWire mcp_I2C(1); // Custom TwoWire instance using bus number 1
 
 void MCP23017::setup(){ 
-    myI2C.begin(SDA_PIN,SCL_PIN); // Init I2C instance with pins 15(SDA) & 2(SCL)
+    mcp_I2C.begin(SDA_Pin,SCL_Pin); // Init I2C instance with pins 15(SDA) & 2(SCL)
     if (!mcp.begin_I2C(0x20,&myI2C)) //Start mcp with custom I2C "mcp_I2C"
     {
         while (1);
