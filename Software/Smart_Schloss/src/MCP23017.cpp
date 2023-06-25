@@ -1,12 +1,18 @@
 #include "MCP23017.h"
 #include <Adafruit_MCP23X17.h>
+#include <Wire.h>
 
-//MCP23017 instance
-Adafruit_MCP23X17 mcp;
+Adafruit_MCP23X17 mcp; //MCP23017 instance
+
+#define SDA_Pin 15
+#define SCL_Pin 2 // Custom SDA & SCL pins
+
+
+TwoWire mcp_I2C(1); // Custom TwoWire instance using bus number 1
 
 void MCP23017::setup(){ 
-    //Start mcp with I2C
-    if (!mcp.begin_I2C()) 
+    myI2C.begin(SDA_PIN,SCL_PIN); // Init I2C instance with pins 15(SDA) & 2(SCL)
+    if (!mcp.begin_I2C(0x20,&myI2C)) //Start mcp with custom I2C "mcp_I2C"
     {
         while (1);
     }
