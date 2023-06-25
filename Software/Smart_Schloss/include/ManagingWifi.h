@@ -6,7 +6,7 @@
 class ManagingWifi {
 public:
   ManagingWifi(const char* ssid, const char* password);
-  void connectToDifferentWifi(const char* ssid, const char* password);
+  void connectToDifferentWifi(const char* ssid, const char* password); // To be used when wifi network should be changed
   void handleConnectionStatus();
   void disconnect();
   IPAddress getIPAddress();

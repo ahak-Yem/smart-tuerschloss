@@ -22,7 +22,7 @@ void RFID::set_UID(){
     return;
   }
   //Show UID on serial monitor
-  Serial.print("UID tag :");
+  //Serial.print("UID tag :");
   String content= "";
   byte letter;
   for (byte i = 0; i < readerX.uid.size; i++) 
@@ -32,8 +32,8 @@ void RFID::set_UID(){
      content.concat(String(readerX.uid.uidByte[i], HEX));
   }
   content.toUpperCase();
-  Serial.println("Authorized access !");
-  Serial.println();
+  //Serial.println("Authorized access !");
+  //Serial.println();
   UID=content;
   readerX.PICC_HaltA(); // Halt the tag
 }
