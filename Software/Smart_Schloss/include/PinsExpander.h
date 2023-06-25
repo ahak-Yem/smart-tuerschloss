@@ -1,6 +1,6 @@
 #include <Adafruit_MCP23X17.h>
 
-class MCP23017{
+class PinsExpander{
     private:
     public:
     void setup();
