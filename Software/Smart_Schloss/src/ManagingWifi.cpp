@@ -62,7 +62,7 @@ void ManagingWifi::handleConnectionStatus() {
       case WL_CONNECTED:
         //Serial.println("Status: Successfully connected to a WiFi network.");
         //Serial.print("IP_Address: ");
-        //Serial.println(WiFi.localIP());
+        //Serial.println(_ipAddress);
         break;
       case WL_CONNECT_FAILED:
         //Serial.println("Status: Failed to connect to a WiFi network.");

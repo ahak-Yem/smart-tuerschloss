@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <DoorState.h>
+#include "DoorState.h"
 
 
 DoorState::DoorState(int* doorSensorsPins, int numberOfPins) {
