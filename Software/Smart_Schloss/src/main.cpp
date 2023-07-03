@@ -34,7 +34,7 @@ int lockState=-1;
 RFID rfid;
 Lock lock1;
 DoorState doorSensor(doorSensorsPins, sizeof(doorSensorsPins) / sizeof(doorSensorsPins[0]));
-PinsExpander pinsExpander;
+PinsExpander pinsExpander(0x20,15,0);
 ManagingWifi wifiManager(ssid_Router,password_Router);
 
 //For DoorState & Wifi there are no setup methods, because they are built with constructor.
