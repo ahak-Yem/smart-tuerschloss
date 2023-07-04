@@ -31,7 +31,7 @@ int doorSensorsPins[] = {13}; //Write the pin(s) where the sensor(s) is connecte
 int lockState=-1;
 
 //Objects of our hard coded classes.
-RFID rfid;
+RFID rfid(13,14);
 Lock lock1;
 DoorState doorSensor(doorSensorsPins, sizeof(doorSensorsPins) / sizeof(doorSensorsPins[0]));
 PinsExpander pinsExpander(0x20,15,0);
@@ -39,9 +39,10 @@ ManagingWifi wifiManager(ssid_Router,password_Router);
 
 //For DoorState & Wifi there are no setup methods, because they are built with constructor.
 void setup() {
-  rfid.setup();
   lock1.setup();
   pinsExpander.setup();
+  //Wire.begin(SDA,SCL);  // Initialize the custom I2C interface
+
 }
 
 void loop() {
