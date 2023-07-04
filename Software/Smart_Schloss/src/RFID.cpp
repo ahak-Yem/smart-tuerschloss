@@ -1,45 +1,40 @@
-#include "RFID.h" 
-#include <SPI.h>
-#include<MFRC522.h>
+#include "RFID.h"
 
-void RFID::setup()
+String RFID::get_UID()
 {
-    Serial.begin(9600);
-    SPI.begin();
-    MFRC522 reader(SDA_PIN,RST_PIN);
-    readerX=reader;
-    readerX.PCD_Init();
+  return this->UID;
 }
 
-void RFID::set_UID(){
-    if ( ! readerX.PICC_IsNewCardPresent()) 
-  {
-    return;
+RFID::RFID(int sda_pin, int scl_pin) : SDA_PIN(sda_pin), SCL_PIN(scl_pin), nfc(sda_pin, scl_pin)
+{
+  //setup for RFID reader
+  this->nfc.begin();
+  uint32_t versiondata = this->nfc.getFirmwareVersion();
+  if (!versiondata) {
+    Serial.print("Didn't find PN53x board");//TODO:Remove this after debuging
+    while (1);
   }
-  // Select one of the cards
-  if ( ! readerX.PICC_ReadCardSerial()) 
-  {
-    return;
-  }
-  //Show UID on serial monitor
-  //Serial.print("UID tag :");
-  String content= "";
-  byte letter;
-  for (byte i = 0; i < readerX.uid.size; i++) 
-  {
-     //gibt UID zurück (wichtig !!).
-     Serial.println(readerX.uid.uidByte[i], HEX);
-     content.concat(String(readerX.uid.uidByte[i], HEX));
-  }
-  content.toUpperCase();
-  //Serial.println("Authorized access !");
-  //Serial.println();
-  UID=content;
-  readerX.PICC_HaltA(); // Halt the tag
+  this->nfc.SAMConfig();
 }
 
 void RFID::set_UID_NULL()
 {
-  UID="";
+  this->UID="";
+}
+
+void RFID::set_UID()
+{
+  uint8_t success;
+  uint8_t* uid = new uint8_t[7];
+  uint8_t uidLength;
+
+  success = this->nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
+  if (success) {
+    for (uint8_t i = 0; i < uidLength; i++) {
+      //std::string str = std::to_string(static_cast<int>(value));
+      this->UID = (static_cast<String>(uid[i]))+this->UID;
+    }
+    delete[] uid;
+    delay(5000);
   }
- 
+}
