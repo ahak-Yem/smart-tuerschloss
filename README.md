@@ -100,7 +100,7 @@ sudo docker exec -i xnavi_d9_mariadb mysql -uroot -pxnavi_d9 xnavi_d9 < xnavi_ke
 
 
 
-### Teil 2: Software für den Mikrocontroller
+# Teil 3: Software für den Mikrocontroller
 ### 1 Projekt klonen: 
 Klonen Sie das Projekt entweder über SSH oder HTTPS von GitLab:
 
