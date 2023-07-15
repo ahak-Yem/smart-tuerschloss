@@ -32,8 +32,10 @@
   + USB-Kabel zum Anschließen des ESP32 an den Computer
 
 # Installationsschritte 
+-----------------------
 
 ## Teil 1  : Installation von Docker Engine 
+--------------------------------------------
 
 ### 1 Aktualisieren Sie den apt-Paketindex und installieren Sie die erforderlichen Pakete, um apt die Verwendung eines Repositorys über HTTPS zu ermöglichen : 
 ```
@@ -67,8 +69,8 @@ sudo docker run hello-world
 ``` 
 
 
-# Teil 2  : Drupal-Schnitstelle 
-
+# Teil 2  : Drupal-Schnitstelle : 
+---------------------------------
 
 ### 1 klonen Sie das Repository von GitHub mit dem folgenden Befehl:
 ```
@@ -100,8 +102,11 @@ sudo docker exec -i xnavi_d9_mariadb mysql -uroot -pxnavi_d9 xnavi_d9 < xnavi_ke
 
 
 
-# Teil 3: Software für den Mikrocontroller
+# Teil 3: Software für den Mikrocontroller : 
+--------------------------------------------
+
 ### 1 Projekt klonen: 
+
 Klonen Sie das Projekt entweder über SSH oder HTTPS von GitLab:
 
 #### SSH:
@@ -114,7 +119,6 @@ git clone git@gitlab.rz.htw-berlin.de:fachpro-23/03-smart-tuerschloss.git
 git clone https://gitlab.rz.htw-berlin.de/fachpro-23/03-smart-tuerschloss.git.
 
 ```
-
 ### 2 Projektordner auswählen:
 
  Navigieren Sie zum heruntergeladenen Projektordner und wählen Sie ihn aus, um ihn zu öffnen.
