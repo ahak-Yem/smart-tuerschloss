@@ -3,8 +3,7 @@
 
 class Lock{
     private:
-    int IN1_PIN = 32;
     public: 
     void setup();
-    int OpenLock(String UID);
+    bool OpenLock(int lock_pin);
 };

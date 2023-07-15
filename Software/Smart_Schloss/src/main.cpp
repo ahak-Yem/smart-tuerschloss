@@ -13,24 +13,24 @@
 //Use this variables to turn the wished MCP23017 pin(s) on/off.
   #define SDA_MCP 32
   #define SCL_MCP 33
-  #define A0 0    
-  #define A1 1     
-  #define A2 2     
-  #define A3 3
-  #define A4 4
-  #define A5 5
-  #define A6 6
-  #define A7 7
-  #define B0 8
-  #define B1 9
-  #define B2 10
-  #define B3 11
-  #define B4 12
-  #define B5 13
-  #define B6 14
-  #define B7 15
+  #define PE_A0 0    
+  #define PE_A1 1     
+  #define PE_A2 2     
+  #define PE_A3 3
+  #define PE_A4 4
+  #define PE_A5 5
+  #define PE_A6 6
+  #define PE_A7 7
+  #define PE_B0 8
+  #define PE_B1 9
+  #define PE_B2 10
+  #define PE_B3 11
+  #define PE_B4 12
+  #define PE_B5 13
+  #define PE_B6 14
+  #define PE_B7 15
   PinsExpander pinsExpander(0x20,SDA_MCP,SCL_MCP);
-  const int outputPins[] = {B1,B3,A5};
+  const int outputPins[] = {PE_B1,PE_B3,PE_A5};
   int numberOfOutputPins = sizeof(outputPins) / sizeof(outputPins[0]);
 //........................ -> // Uncomment the wished line when using the MCP23017
 
@@ -39,6 +39,7 @@
 #define PN532_SDA   13   
 #define PN532_SCL   14   
 String content="";
+PN532 pn532(PN532_SDA, PN532_SCL);
 
 //Wifi section
 const char* ssid = "Yemen";
@@ -46,10 +47,10 @@ const char* password = "123456789"; //TODO: Change wifi data to the wished one
 //Use after bug is repaired
 //ManagingWifi wifiManager(ssid, password); //Creating an object of this class does all the configuration needed
 
-
+//Lock section
 int lockState=-1;
-//PN532 pn532(PN532_SDA, PN532_SCL);
-//Lock lock1;
+Lock lock1;
+
 //DoorState doorstate;
 
 void setup() {
@@ -82,8 +83,11 @@ void setup() {
   Wire.begin(SDA_MCP,SCL_MCP);
   pinsExpander.setPinModeOutput(outputPins,numberOfOutputPins);
   //End Pins Expander-----------------------------------------------------------------------------//
+
+  //Lock-------------------------------------------------------------------------------------------
+  lock1.OpenLock(15);
+  //End Lock-------------------------------------------------------------------------------------//
   
-  //lock1.setup();
   //doorstate.setup();
 }
 
