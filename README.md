@@ -31,10 +31,13 @@
   + Freenove ESP32 Wrover-Dev Board (oder ein ähnliches ESP32-Board)
   + USB-Kabel zum Anschließen des ESP32 an den Computer
 
-## Installationsschritte 
-# Teil 1  : Installation von Docker Engine 
+# Installationsschritte 
+-----------------------
 
-### 1 Aktualisieren Sie den apt-Paketindex und installieren Sie die erforderlichen Pakete, um apt die Verwendung eines Repositorys über HTTPS zu ermöglichen 
+## Teil 1  : Installation von Docker Engine 
+--------------------------------------------
+
+### 1 Aktualisieren Sie den apt-Paketindex und installieren Sie die erforderlichen Pakete, um apt die Verwendung eines Repositorys über HTTPS zu ermöglichen : 
 ```
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg
@@ -66,14 +69,13 @@ sudo docker run hello-world
 ``` 
 
 
-# Teil 2  : Drupal-Schnitstelle 
-
+# Teil 2  : Drupal-Schnitstelle : 
+---------------------------------
 
 ### 1 klonen Sie das Repository von GitHub mit dem folgenden Befehl:
-   
- ```git clone git@github.com:MethodJules/xnavi_d9.git
-
- ```
+```
+   git clone git@github.com:MethodJules/xnavi_d9.git
+```
 ### 2 Wechseln Sie in den key_management-Branch mit dem folgenden Befehl: 
 ```
 cd xnavi_d9
@@ -90,7 +92,7 @@ sudo docker-compose up -d
 ``` 
 ### 5 Laden Sie den Datenbankdump von folgender URL herunter: xnavi_key_management_dump.sql. Speichern Sie die Datei in das docker-Verzeichnis. 
 
-https://www.dropbox.com/scl/fi/qm8xofclt7sqoag50xefn/xnavi_key_management_dump.sql?dl=0&rlkey=ueayibf2w3pvy8m9wyiy9s7a4 
+`https://www.dropbox.com/scl/fi/qm8xofclt7sqoag50xefn/xnavi_key_management_dump.sql?dl=0&rlkey=ueayibf2w3pvy8m9wyiy9s7a4 `
 
 ### 6 Führen Sie den folgenden Befehl aus, um den Datenbankdump in die MySQL-Datenbank einzulesen: 
 ```
@@ -100,8 +102,11 @@ sudo docker exec -i xnavi_d9_mariadb mysql -uroot -pxnavi_d9 xnavi_d9 < xnavi_ke
 
 
 
-### Teil 2: Software für den Mikrocontroller
+# Teil 3: Software für den Mikrocontroller : 
+--------------------------------------------
+
 ### 1 Projekt klonen: 
+
 Klonen Sie das Projekt entweder über SSH oder HTTPS von GitLab:
 
 #### SSH:
@@ -114,7 +119,6 @@ git clone git@gitlab.rz.htw-berlin.de:fachpro-23/03-smart-tuerschloss.git
 git clone https://gitlab.rz.htw-berlin.de/fachpro-23/03-smart-tuerschloss.git.
 
 ```
-
 ### 2 Projektordner auswählen:
 
  Navigieren Sie zum heruntergeladenen Projektordner und wählen Sie ihn aus, um ihn zu öffnen.
