@@ -4,6 +4,5 @@
 class Lock{
     private:
     public: 
-    void setup();
-    bool OpenLock(int lock_pin);
+    bool OpenLock(String UID);
 };
