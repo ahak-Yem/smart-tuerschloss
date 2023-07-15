@@ -7,7 +7,10 @@
 #include "PN532.h"
 #include "ManagingWifi.h"
 
+//Pins-Expander section 
 //Use this variables to turn the wished MCP23017 pin(s) on/off.
+  #define SDA_MCP 32
+  #define SCL_MCP 33
   #define A0 0    
   #define A1 1     
   #define A2 2     
@@ -23,6 +26,7 @@
   #define B5 12
   #define B6 13
   #define B7 14
+  
 //........................ -> // Uncomment the wished line when using the MCP23017
 
 //RFID section
@@ -33,9 +37,10 @@ String content="";
 
 //Wifi section
 const char* ssid = "Yemen";
-const char* password = "12345678"; //TODO: Change wifi data to the wished one
+const char* password = "123456789"; //TODO: Change wifi data to the wished one
 //Use after bug is repaired
 //ManagingWifi wifiManager(ssid, password); //Creating an object of this class does all the configuration needed
+
 
 int lockState=-1;
 PN532 pn532(PN532_SDA, PN532_SCL);
