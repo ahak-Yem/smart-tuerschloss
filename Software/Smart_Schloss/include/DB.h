@@ -4,8 +4,9 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <Arduino.h>
+#include <vector>
 
-//A struct for booking data only.
+//Struct for booking data response.
 struct BookingData {
     const char* userID;
     const char* buchungID;
@@ -15,6 +16,17 @@ struct BookingData {
     const char* schluesselID;
     const char* zustandSchluessel;
     const char* kastenID;
+};
+
+//Struct to hold parameters for the FetchBookingData query
+struct FetchBookingDataQuery {
+    const char* uid;
+};
+
+//Struct to hold parameters for the InsertBoxAccess query
+struct InsertBoxAccessQuery {
+    const char* userId;
+    bool isClosed;
 };
 
 //All possible queries.
@@ -27,11 +39,10 @@ enum QueryName {
 class DB {
 public:
     DB(const char* serverURL);
-    void runQuery(QueryName query, const char* uid);
-    const char* serverURL;
-
+    void runQuery(QueryName query, FetchBookingDataQuery fetchParameter);
+    void runQuery(QueryName query, InsertBoxAccessQuery insertQuery);
 private:
-    // const char* serverURL;
+    const char* serverURL;
     std::vector<JsonObject> deserializeJsonObj(String payload);
     BookingData extractBookingData(JsonObject data);
     bool processBookingData(std::vector<JsonObject> data);

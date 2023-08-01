@@ -5,34 +5,56 @@ DB::DB(const char* serverURL) {
     this->serverURL = serverURL;
 }
 
-//A function that calls the wished query.
-void DB::runQuery(QueryName query, const char* uid="") {
+void DB::runQuery(QueryName query, FetchBookingDataQuery fetchParameter) {
+// Perform the HTTP GET request to fetch data from the server
+    HTTPClient http;
+    String queryURL;
+    String uid=fetchParameter.uid;
+    if(query==FETCH_BOOKING_DATA)
+    {
+        if(uid!=""){
+            queryURL = String(serverURL) + "fetch_booking_data.php?rfid_uid="+ uid;
+            http.begin(queryURL);
+            int httpCode = http.GET();
+            if (httpCode == HTTP_CODE_OK) {
+                String payload = http.getString();
+                std::vector<JsonObject> jsonObjects = deserializeJsonObj(payload);
+                processBookingData(jsonObjects);
+            } 
+            else{
+                Serial.println("HTTP GET request failed");
+            }
+            http.end();
+        }
+    }
+    else{
+        Serial.println("Invalid query or function is used wrong.");
+        return;
+    }
+}
+
+void DB::runQuery(QueryName query, InsertBoxAccessQuery insertQuery)
+{   
     // Perform the HTTP GET request to fetch data from the server
     HTTPClient http;
     String queryURL;
-    switch(query)
-    {
-       case FETCH_BOOKING_DATA:
-            if(uid!=""){
-                queryURL = String(serverURL) + "fetch_booking_data.php?rfid_uid="+ uid;
-                http.begin(queryURL);
-                int httpCode = http.GET();
-                if (httpCode == HTTP_CODE_OK) {
-                    String payload = http.getString();
-                    std::vector<JsonObject> jsonObjects = deserializeJsonObj(payload);
-                    processBookingData(jsonObjects);
-                } 
-                else{
-                    Serial.println("HTTP GET request failed");
-                }
-                http.end();
-            }break;
-        case INSERT_BOX_ACCESS:
-            queryURL = String(serverURL) + "?user_id=123&ist_zu=1"; // Customize the URL for the specific query
-            break;
-        default:
-            Serial.println("Invalid query.");
-            return;
+    String userId=insertQuery.userId;
+    bool isClosed=insertQuery.isClosed;
+    if(query==INSERT_BOX_ACCESS)
+    {//http://insert_box_access.php/?user_id=1&ist_zu=true
+        if(userId != "" && userId!="0"){
+            queryURL = String(serverURL) + "insert_box_access.php/?user_id=" + userId + "&ist_zu=" + (isClosed ? "true" : "false");
+            http.begin(queryURL);
+            int httpCode = http.GET();
+            if (httpCode == HTTP_CODE_OK) {
+                String payload = http.getString();
+                Serial.println(payload);
+            }
+        }
+    }
+    else{
+        Serial.println("Invalid query or function is used wrong.");
+        return;
     }
 }
 
