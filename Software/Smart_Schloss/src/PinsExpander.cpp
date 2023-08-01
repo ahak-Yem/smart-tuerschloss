@@ -1,6 +1,6 @@
 #include "PinsExpander.h"
 
-TwoWire mcp_I2C(2); // Custom TwoWire instance using bus number 1
+TwoWire mcp_I2C(0); // Custom TwoWire instance using bus number 1
 
 PinsExpander::PinsExpander(uint8_t address, int sda_pin, int scl_pin) 
 : _addr(address), SDA_PIN(sda_pin), SCL_PIN(scl_pin) {}
