@@ -84,6 +84,12 @@ void DB::runQuery(QueryName query, UpdateKastenZugangState updateBoxState){
     if(query == UPDATE_DOORSTATE_KASTENZUGANG){
         updateKastenZugangState(updateBoxState);
     }
+}
+
+//
+std::vector<BookingData> DB::getCurrentBookings()
+{
+    return this->currentBookings;
 };
 
 //Deserialize the JSON response and create a vector of json objects.
@@ -131,7 +137,7 @@ bool DB::processBookingData(std::vector<JsonObject> data) {
         for (JsonObject obj : data) 
         {
             BookingData bookingData=extractBookingData(obj);
-            
+            this->currentBookings.push_back(bookingData);
             // Do something with the booking data, e.g., print, process, etc.
             // Print the extracted data for now
             Serial.print("UserID: "); Serial.println(bookingData.userID);

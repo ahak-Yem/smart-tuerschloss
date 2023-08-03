@@ -107,7 +107,9 @@ public:
     void runQuery(QueryName query, UpdateBookingStateQuery updateBookingQuery);
     void runQuery(QueryName query, UpdateBoxDoorState updateBoxState);
     void runQuery(QueryName query, UpdateKastenZugangState updateBoxState);
+    std::vector<BookingData> getCurrentBookings();
 private:
+    std::vector<BookingData> currentBookings;
     const char* serverURL;
     std::vector<JsonObject> deserializeJsonObj(String payload);
     BookingData extractBookingData(JsonObject data);
