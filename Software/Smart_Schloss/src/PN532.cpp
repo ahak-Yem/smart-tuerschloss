@@ -19,6 +19,24 @@ bool PN532::isCardPresent() {
   return success;
 }
 
-void PN532::readCard(uint8_t* uid, uint8_t* uidLength) {
-  nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, uidLength);
+String PN532::readCard() {
+    String content;
+    uint8_t uid[7];
+    uint8_t uidLength;
+    nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
+    Serial.print("UID Value: ");
+    for (uint8_t i = 0; i < uidLength; i++) {
+      Serial.print(uid[i], HEX);
+      // Convert byte to hexadecimal and concatenate
+      char hexString[3];
+      sprintf(hexString, "%02X", uid[i]);
+      content += hexString;
+    }
+    currentUID=content;
+    return content; 
+}
+
+String PN532::getCurrentUID()
+{
+    return this->currentUID;
 }

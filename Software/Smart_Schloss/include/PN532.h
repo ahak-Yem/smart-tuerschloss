@@ -8,14 +8,15 @@ public:
   PN532(uint8_t sdaPin, uint8_t sclPin);
   void begin();
   bool isCardPresent();
-  void readCard(uint8_t* uid, uint8_t* uidLength);
-  
+  String readCard();
+  String getCurrentUID();
   Adafruit_PN532 nfc; // Move nfc here to be accessible outside the class
 
 private:
   uint8_t sdaPin;
   uint8_t sclPin;
   TwoWire i2c;
+  String currentUID;
 };
 
 #endif
