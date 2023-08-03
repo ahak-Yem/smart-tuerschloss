@@ -13,7 +13,9 @@ bool PN532::isCardPresent() {
   uint8_t uidLength;
   
   success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
-  
+  if(success){
+    Serial.println("Found an RFID card or tag!");
+  }
   return success;
 }
 

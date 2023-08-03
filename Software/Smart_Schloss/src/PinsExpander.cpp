@@ -7,7 +7,7 @@ PinsExpander::PinsExpander(uint8_t address, int sda_pin, int scl_pin)
 
 
 void PinsExpander::setup(){ 
-    mcp_I2C.begin(SDA_PIN,SCL_PIN); // Init I2C instance with pins 15(SDA) & 2(SCL)
+    mcp_I2C.begin(SDA_PIN,SCL_PIN); // Init I2C instance with pins 32(SDA) & 33(SCL)
     if (!mcp.begin_I2C(_addr,&mcp_I2C)) //Start mcp with custom I2C "mcp_I2C"
     {
         while (1);
