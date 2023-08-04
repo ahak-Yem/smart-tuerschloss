@@ -1,4 +1,5 @@
 #include "RealTimeManager.h"
+#include <ctime>
 
 RealTimeManager::RealTimeManager(const char* ntpServer, int timeZoneOffset)
     : ntpServer(ntpServer), timeZoneOffset(timeZoneOffset),
@@ -14,12 +15,12 @@ void RealTimeManager::update() {
 }
 
 String RealTimeManager::getCurrentDate() {
-    unsigned long epochTime = timeClient.getEpochTime();
-    struct tm *ptm = gmtime((time_t *)&epochTime);
-    int year = ptm->tm_year + 1900;
-    int month = ptm->tm_mon + 1;
-    int day = ptm->tm_mday;
-    return String(year) + "-" + String(month) + "-" + String(day);
+    time_t epochTime = timeClient.getEpochTime();
+    struct tm *ptm = localtime(&epochTime); // Use localtime to get local time
+
+    char buffer[11];
+    snprintf(buffer, sizeof(buffer), "%04d-%02d-%02d", ptm->tm_year + 1900, ptm->tm_mon + 1, ptm->tm_mday);
+    return String(buffer);
 }
 
 String RealTimeManager::getCurrentTime() {

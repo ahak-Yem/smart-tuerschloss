@@ -8,7 +8,7 @@
 class RealTimeManager {
 private:
     const char* ntpServer;
-    const int timeZoneOffset;
+    int timeZoneOffset; // Changed from const to variable to adjust for daylight saving time
     WiFiUDP ntpUDP;
     NTPClient timeClient;
 
@@ -18,7 +18,7 @@ public:
     void update();
     String getCurrentDate();
     String getCurrentTime();
-    String getCurrentDateTime(); // New function to get date and time together
+    String getCurrentDateTime();
 };
 
 #endif
