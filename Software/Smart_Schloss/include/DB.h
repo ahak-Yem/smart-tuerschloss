@@ -108,6 +108,7 @@ public:
     void runQuery(QueryName query, UpdateBoxDoorState updateBoxState);
     void runQuery(QueryName query, UpdateKastenZugangState updateBoxState);
     std::vector<BookingData> getCurrentBookings();
+    static String bookingZustandToString(BuchungZustandEnum::BuchungZustand zustand);
 private:
     std::vector<BookingData> currentBookings;
     const char* serverURL;
@@ -119,7 +120,6 @@ private:
     void updateBoxDoorState(UpdateBoxDoorState updateBoxState);
     void updateKastenZugangState(UpdateKastenZugangState updateKastenState);
     String keyStateToString(KeyStateEnum::KeyState state);
-    String bookingZustandToString(BuchungZustandEnum::BuchungZustand zustand);
 };
 
 #endif
