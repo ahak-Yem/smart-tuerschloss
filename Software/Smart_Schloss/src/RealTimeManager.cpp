@@ -32,3 +32,9 @@ String RealTimeManager::getCurrentDateTime() {
     String currentTime = getCurrentTime();
     return currentDate + " " + currentTime;
 }
+
+time_t RealTimeManager::convertStringToTime(const String& datetimeString) {
+    struct tm tmTime;
+    strptime(datetimeString.c_str(), "%Y-%m-%d %H:%M:%S", &tmTime);
+    return mktime(&tmTime);
+}

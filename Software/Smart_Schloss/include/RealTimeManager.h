@@ -19,6 +19,7 @@ public:
     String getCurrentDate();
     String getCurrentTime();
     String getCurrentDateTime();
+    time_t convertStringToTime(const String& datetimeString);
 };
 
 #endif
