@@ -79,10 +79,10 @@ struct InsertBoxAccessQuery {
 
 //Struct to hold parameters for the UpdateBookingState query.
 struct UpdateBookingStateQuery {
-    char* buchungID;
+    String buchungID;
     BuchungZustandEnum::BuchungZustand zustand;
-    char* abholungszeit;
-    char* abgabezeit;
+    String abholungszeit;
+    String abgabezeit;
 };
 
 //Struct to hold parameters for the UpdateBoxState query.
