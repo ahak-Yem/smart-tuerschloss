@@ -50,39 +50,39 @@ namespace BuchungZustandEnum {
 
 //Struct for booking data response.
 struct BookingData {
-    const char* userID;
-    const char* buchungID;
-    const char* reservierungsdatum;
-    const char* rueckgabedatum;
-    const char* zustandBuchung;
-    const char* schluesselID;
-    const char* zustandSchluessel;
-    const char* kastenID;
+    char* userID;
+    char* buchungID;
+    char* reservierungsdatum;
+    char* rueckgabedatum;
+    char* zustandBuchung;
+    char* schluesselID;
+    char* zustandSchluessel;
+    char* kastenID;
 };
 
 //Struct to hold parameters for the UpdateKeyState query.
 struct UpdateKeyStateQuery{
-    const char* schluesselID;
+    char* schluesselID;
     KeyStateEnum::KeyState schluesselZustand;
 };
 
 //Struct to hold parameters for the FetchBookingData query.
 struct FetchBookingDataQuery {
-    const char* uid;
+    String uid;
 };
 
 //Struct to hold parameters for the InsertBoxAccess query.
 struct InsertBoxAccessQuery {
-    const char* userId;
+    char* userId;
     bool isClosed;
 };
 
 //Struct to hold parameters for the UpdateBookingState query.
 struct UpdateBookingStateQuery {
-    const char* buchungID;
+    char* buchungID;
     BuchungZustandEnum::BuchungZustand zustand;
-    const char* abholungszeit;
-    const char* abgabezeit;
+    char* abholungszeit;
+    char* abgabezeit;
 };
 
 //Struct to hold parameters for the UpdateBoxState query.
@@ -94,7 +94,7 @@ struct UpdateBoxDoorState{
 
 //Struct to hold parameters for the UpdateKastenZugangState query.
 struct UpdateKastenZugangState {
-    const char* ID;
+    char* ID;
     bool IstZu;
 };
 
