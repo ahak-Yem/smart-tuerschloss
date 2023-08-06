@@ -42,21 +42,38 @@ bool Lock::validateBooking(BookingData booking, RealTimeManager timeManager)
     Serial.println("The booking time range is not valid!");
     return false;
   }
-  return false; //Will never run but keep it for weird behaviours
+  return false; //Will never run but keep it in case of any weird behaviours
 }
 
-//TODO: Repair this to be dynamic
-String Lock::OpenLock(String UID){
-    if(UID == "45B249ADE5680"){
-      return UID;
-    }
-  else if(UID == "AD268838"){
-    return UID;
-  }
-  else if (UID == "E61CED30"){
-        return UID;
-  }
-  else 
-  return "";
-}   
 
+int Lock::BoxLockPin(const char* boxId){
+  if (boxId) {
+    // Convert the box ID to an integer
+    int boxNumber = atoi(boxId);
+  	switch (boxNumber) {
+      case 1:
+      return PE_A0;
+      case 2:
+      return PE_A0;
+      case 3:
+      return PE_A0;
+      case 4:
+      return PE_A0;
+      case 5:
+      return PE_A0;
+      case 6:
+      return PE_A0;
+      case 7:
+      return PE_A0;
+      case 8:
+      return PE_A0;
+      default:
+      Serial.println("Invalid Box ID!");
+      return -1; // Indicate failure
+    }
+  }
+  else{
+    Serial.println("Box Id is empty!");
+    return false;
+  }   
+}
