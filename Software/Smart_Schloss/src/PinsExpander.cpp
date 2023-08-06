@@ -26,15 +26,11 @@ void PinsExpander::setPinModeInput(const int *pins, int numberOfPins){
     }
 }
 
-void PinsExpander::TurnHigh(const int *pins, int numberOfPins) {
-  for (int i = 0; i < numberOfPins; i++) {
-    mcp.digitalWrite(pins[i], HIGH);
-  }
+void PinsExpander::TurnHigh(const int pin, int numberOfPins) {
+  mcp.digitalWrite(pin, HIGH);
 }
 
-void PinsExpander::TurnLow(const int *pins, int numberOfPins) {
-  for (int i = 0; i < numberOfPins; i++) {
-    mcp.digitalWrite(pins[i], LOW);
-  }
+void PinsExpander::TurnLow(const int pin, int numberOfPins) {
+  mcp.digitalWrite(pin, LOW);
 }
     

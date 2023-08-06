@@ -17,7 +17,7 @@ class PinsExpander{
     PinsExpander(uint8_t address,int sda_pin, int scl_pin); //Constructor that defines I2C pins and address
     void setPinModeOutput(const int *pins, int numberOfPins); //Sets all outputPins array as output
     void setPinModeInput(const int *pins, int numberOfPins); //Sets all inputPins array as input
-    void TurnHigh(const int *pins, int numberOfPins); //Turn passed pins HIGH
-    void TurnLow(const int *pins, int numberOfPins); //Turn passed pins LOW
+    void TurnHigh(const int pin, int numberOfPins); //Turn passed pins HIGH
+    void TurnLow(const int pin, int numberOfPins); //Turn passed pins LOW
 };
 #endif
