@@ -1,7 +1,9 @@
 #include "Lock.h"
 
 
-Lock::Lock(){}
+Lock::Lock(){
+  Serial.println("Lock is initialized");
+}
 
 String Lock::getCurrentTime(RealTimeManager timeManager)
 {

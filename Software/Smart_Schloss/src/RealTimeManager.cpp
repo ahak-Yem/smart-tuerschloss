@@ -8,6 +8,7 @@ RealTimeManager::RealTimeManager(const char* ntpServer, int timeZoneOffset)
 void RealTimeManager::begin() {
     timeClient.begin();
     timeClient.update(); // Synchronize time with NTP server
+    Serial.println("Realtime server started.");
 }
 
 void RealTimeManager::update() {

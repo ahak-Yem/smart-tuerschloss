@@ -5,6 +5,7 @@ PN532::PN532(uint8_t sdaPin, uint8_t sclPin) : sdaPin(sdaPin), sclPin(sclPin), i
 void PN532::begin() {
   i2c.begin(sdaPin, sclPin);
   nfc.begin();
+  Serial.println("RFID reader is initialized!");
 }
 
 bool PN532::isCardPresent() {
@@ -26,12 +27,12 @@ String PN532::readCard() {
     nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
     Serial.print("UID Value: ");
     for (uint8_t i = 0; i < uidLength; i++) {
-      Serial.print(uid[i], HEX);
       // Convert byte to hexadecimal and concatenate
       char hexString[3];
       sprintf(hexString, "%02X", uid[i]);
       content += hexString;
     }
+    Serial.println(content);
     currentUID=content;
     return content; 
 }

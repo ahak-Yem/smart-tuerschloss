@@ -12,6 +12,7 @@ void PinsExpander::setup(){
     {
         while (1);
     }
+    Serial.println("Pins Expander is initialized");
 }
 
 void PinsExpander::setPinModeOutput(const int *pins, int numberOfPins){

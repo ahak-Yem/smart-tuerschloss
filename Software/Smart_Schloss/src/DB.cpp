@@ -2,6 +2,7 @@
 
 //A constructor that sets the server address.
 DB::DB(const char* serverURL) {
+    Serial.println("DB initialized");
     this->serverURL = serverURL;
 };
 
