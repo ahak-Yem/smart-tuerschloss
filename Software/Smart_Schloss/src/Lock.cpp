@@ -63,19 +63,19 @@ int Lock::BoxLockPin(const char* boxId){
       case 1:
       return PE_A0;
       case 2:
-      return PE_A0;
+      return PE_A1;
       case 3:
-      return PE_A0;
+      return PE_A2;
       case 4:
-      return PE_A0;
+      return PE_A3;
       case 5:
-      return PE_A0;
+      return PE_A4;
       case 6:
-      return PE_A0;
+      return PE_A5;
       case 7:
-      return PE_A0;
+      return PE_A6;
       case 8:
-      return PE_A0;
+      return PE_A7;
       default:
       Serial.println("Invalid Box ID!");
       return -1; // Indicate failure
