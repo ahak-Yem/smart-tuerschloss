@@ -5,34 +5,41 @@ Lock::Lock(){
   Serial.println("Lock is initialized");
 }
 
-String Lock::getCurrentTime(RealTimeManager timeManager)
+bool Lock::validateBooking(BookingData booking, RealTimeManager &timeManager)
 {
   timeManager.update();
-  String currentDateTime = timeManager.getCurrentDateTime();
-  Serial.print("Current date and time: ");
-  Serial.println(currentDateTime);
-  return currentDateTime;
-}
 
-bool Lock::validateBooking(BookingData booking, RealTimeManager timeManager)
-{
-  String currentTime = this->getCurrentTime(timeManager);
+  //This gets the current datetime in Germany from a Server as a String.
+  String currentTime = timeManager.getCurrentDateTime();
+  delay(50);
+
+  //Converts the datetime string to time_t obj to be used in if.
   time_t currentDateTime = timeManager.convertStringToTime(currentTime);
-  time_t reservationDateTime = timeManager.convertStringToTime(booking.reservierungsdatum);
-  time_t returnDateTime = timeManager.convertStringToTime(booking.rueckgabedatum);
+  delay(50);
 
+  //Converts the booking reserve date to time_t obj to be used in if.
+  time_t reservationDateTime = timeManager.convertStringToTime(booking.reservierungsdatum);
+  delay(50);
+
+  //Converts the booking return date to time_t obj to be used in if.
+  time_t returnDateTime = timeManager.convertStringToTime(booking.rueckgabedatum);
+  delay(50);
+
+  //Converts the enum values to strings to be used in if
   String bookedCondition=DB::bookingZustandToString(BuchungZustandEnum::gebucht);
   String collectedCondition=DB::bookingZustandToString(BuchungZustandEnum::abgeholt);
   String lateCondition=DB::bookingZustandToString(BuchungZustandEnum::spaet);
-
+  delay(50);
+ 
   // Compare if reservationDateTime is equal or after currentDateTime
   // and before or equal to returnDateTime.
   if (reservationDateTime >= currentDateTime && reservationDateTime <= returnDateTime) {
     Serial.println("The booking is in the valid time range!");
     //Check if booking state is valid
     if(String(booking.zustandBuchung)==bookedCondition or 
-    String(booking.zustandBuchung)==collectedCondition or 
-    String(booking.zustandBuchung)==lateCondition){
+      String(booking.zustandBuchung)==collectedCondition or 
+      String(booking.zustandBuchung)==lateCondition){
+
       Serial.println("The booking has a valid state!");
       return true;
     }

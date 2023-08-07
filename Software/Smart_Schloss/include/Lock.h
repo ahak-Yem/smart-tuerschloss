@@ -12,9 +12,8 @@
   #define PE_A7 7
 class Lock{
     private:
-    String getCurrentTime(RealTimeManager timeManager);
     public:
     Lock(); 
-    bool validateBooking(BookingData booking,RealTimeManager timeManager);
+    bool validateBooking(BookingData booking,RealTimeManager &timeManager);
     int BoxLockPin(const char* boxId);
 };
