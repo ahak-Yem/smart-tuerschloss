@@ -33,7 +33,7 @@ bool Lock::validateBooking(BookingData booking, RealTimeManager &timeManager)
  
   // Compare if reservationDateTime is equal or after currentDateTime
   // and before or equal to returnDateTime.
-  if (reservationDateTime >= currentDateTime && reservationDateTime <= returnDateTime) {
+  if (reservationDateTime <= currentDateTime && currentDateTime <= returnDateTime) {
     Serial.println("The booking is in the valid time range!");
     //Check if booking state is valid
     if(String(booking.zustandBuchung)==bookedCondition or 
