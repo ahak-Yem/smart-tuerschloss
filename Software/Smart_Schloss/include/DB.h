@@ -50,39 +50,39 @@ namespace BuchungZustandEnum {
 
 //Struct for booking data response.
 struct BookingData {
-    char* userID;
-    char* buchungID;
-    char* reservierungsdatum;
-    char* rueckgabedatum;
-    char* zustandBuchung;
-    char* schluesselID;
-    char* zustandSchluessel;
-    char* kastenID;
+    const char* userID;
+    const char* buchungID;
+    const char* reservierungsdatum;
+    const char* rueckgabedatum;
+    const char* zustandBuchung;
+    const char* schluesselID;
+    const char* zustandSchluessel;
+    const char* kastenID;
 };
 
 //Struct to hold parameters for the UpdateKeyState query.
 struct UpdateKeyStateQuery{
-    char* schluesselID;
+    const char* schluesselID;
     KeyStateEnum::KeyState schluesselZustand;
 };
 
 //Struct to hold parameters for the FetchBookingData query.
 struct FetchBookingDataQuery {
-    String uid;
+    const char* uid;
 };
 
 //Struct to hold parameters for the InsertBoxAccess query.
 struct InsertBoxAccessQuery {
-    char* userId;
+    const char* userId;
     bool isClosed;
 };
 
 //Struct to hold parameters for the UpdateBookingState query.
 struct UpdateBookingStateQuery {
-    String buchungID;
+    const char* buchungID;
     BuchungZustandEnum::BuchungZustand zustand;
-    String abholungszeit;
-    String abgabezeit;
+    const char* abholungszeit;
+    const char* abgabezeit;
 };
 
 //Struct to hold parameters for the UpdateBoxState query.
@@ -94,7 +94,7 @@ struct UpdateBoxDoorState{
 
 //Struct to hold parameters for the UpdateKastenZugangState query.
 struct UpdateKastenZugangState {
-    char* ID;
+    const char* ID;
     bool IstZu;
 };
 
@@ -109,6 +109,9 @@ public:
     void runQuery(QueryName query, UpdateKastenZugangState updateBoxState);
     std::vector<BookingData> getCurrentBookings();
     static String bookingZustandToString(BuchungZustandEnum::BuchungZustand zustand);
+    String keyStateToString(KeyStateEnum::KeyState state);
+    void clearCurrentBookings();
+
 private:
     std::vector<BookingData> currentBookings;
     const char* serverURL;
@@ -119,7 +122,6 @@ private:
     void updateBookingState(UpdateBookingStateQuery updateBookingQuery);
     void updateBoxDoorState(UpdateBoxDoorState updateBoxState);
     void updateKastenZugangState(UpdateKastenZugangState updateKastenState);
-    String keyStateToString(KeyStateEnum::KeyState state);
 };
 
 #endif

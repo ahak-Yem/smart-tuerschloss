@@ -87,9 +87,17 @@ void DB::runQuery(QueryName query, UpdateKastenZugangState updateBoxState){
     }
 }
 
-//
+
 std::vector<BookingData> DB::getCurrentBookings()
 {
+    Serial.println("Getting current bookings");
+    if(this->currentBookings.size() > 0){
+        Serial.println("Current bookings are not empty!");
+    }
+    else
+    {
+        Serial.println("No current bookings.");
+    }
     return this->currentBookings;
 };
 
@@ -139,17 +147,18 @@ bool DB::processBookingData(std::vector<JsonObject> data) {
         {
             BookingData bookingData=extractBookingData(obj);
             this->currentBookings.push_back(bookingData);
-            // Do something with the booking data, e.g., print, process, etc.
-            // Print the extracted data for now
-            Serial.print("UserID: "); Serial.println(bookingData.userID);
-            Serial.print("Buchung_ID: "); Serial.println(bookingData.buchungID);
-            Serial.print("Reservierungsdatum: "); Serial.println(bookingData.reservierungsdatum);
-            Serial.print("Rueckgabedatum: "); Serial.println(bookingData.rueckgabedatum);
-            Serial.print("Zustand (Buchung): "); Serial.println(bookingData.zustandBuchung);
-            Serial.print("SchluesselID: "); Serial.println(bookingData.schluesselID);
-            Serial.print("Zustand (Schluessel): "); Serial.println(bookingData.zustandSchluessel);
-            Serial.print("Kasten_ID: "); Serial.println(bookingData.kastenID);
-            Serial.println();
+            // // Do something with the booking data, e.g., print, process, etc.
+            // // Print the extracted data for now
+            // Serial.print("UserID: "); Serial.println(bookingData.userID);
+            // Serial.print("Buchung_ID: "); Serial.println(bookingData.buchungID);
+            // Serial.print("Reservierungsdatum: "); Serial.println(bookingData.reservierungsdatum);
+            // Serial.print("Rueckgabedatum: "); Serial.println(bookingData.rueckgabedatum);
+            // Serial.print("Zustand (Buchung): "); Serial.println(bookingData.zustandBuchung);
+            // Serial.print("SchluesselID: "); Serial.println(bookingData.schluesselID);
+            // Serial.print("Zustand (Schluessel): "); Serial.println(bookingData.zustandSchluessel);
+            // Serial.print("Kasten_ID: "); Serial.println(bookingData.kastenID);
+            // Serial.println();
+            // delay(10000);//TODO:remove
         }   
         return true;
     }
@@ -186,7 +195,7 @@ void DB::updateKeyState(UpdateKeyStateQuery updateKeyQuery)
 
 void DB::updateBookingState(UpdateBookingStateQuery updateBookingQuery)
 {
-// Perform the HTTP GET request to update data in the buchung table
+    // Perform the HTTP GET request to update data in the buchung table
     HTTPClient http;
     String queryURL;
     String buchungID = updateBookingQuery.buchungID;
@@ -276,6 +285,9 @@ String DB::keyStateToString(KeyStateEnum::KeyState state) {
         default:
             return "";
     }
+}
+void DB::clearCurrentBookings(){
+    this->currentBookings.empty();
 };
 
 String DB::bookingZustandToString(BuchungZustandEnum::BuchungZustand zustand) {
