@@ -34,8 +34,26 @@ String RealTimeManager::getCurrentDateTime() {
     return currentDate + " " + currentTime;
 }
 
+
 time_t RealTimeManager::convertStringToTime(const String& datetimeString) {
-    struct tm tmTime;
-    strptime(datetimeString.c_str(), "%Y-%m-%d %H:%M:%S", &tmTime);
-    return mktime(&tmTime);
+    Serial.println("Converting String to Time");
+
+    int year, month, day, hour, minute, second;
+    if (sscanf(datetimeString.c_str(), "%d-%d-%d %d:%d:%d", &year, &month, &day, &hour, &minute, &second) == 6) {
+        Serial.println("Parsing successful");
+
+        struct tm tmTime;
+        tmTime.tm_year = year - 1900;
+        tmTime.tm_mon = month - 1;
+        tmTime.tm_mday = day;
+        tmTime.tm_hour = hour;
+        tmTime.tm_min = minute;
+        tmTime.tm_sec = second;
+        time_t convertedTime = mktime(&tmTime);
+        Serial.println("Conversion to time_t successful");
+        return convertedTime;
+    } else {
+        Serial.println("Failed to parse datetime string");
+        return -1;
+    }
 }
