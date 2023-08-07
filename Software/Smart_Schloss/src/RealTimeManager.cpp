@@ -47,7 +47,6 @@ time_t RealTimeManager::convertStringToTime(const String& datetimeString) {
         tmTime.tm_min = minute;
         tmTime.tm_sec = second;
         time_t convertedTime = mktime(&tmTime);
-        Serial.println("Conversion to time_t successful");
         return convertedTime;
     } else {
         Serial.println("Failed to parse datetime string");
