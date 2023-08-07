@@ -36,11 +36,8 @@ String RealTimeManager::getCurrentDateTime() {
 
 
 time_t RealTimeManager::convertStringToTime(const String& datetimeString) {
-    Serial.println("Converting String to Time");
-
     int year, month, day, hour, minute, second;
     if (sscanf(datetimeString.c_str(), "%d-%d-%d %d:%d:%d", &year, &month, &day, &hour, &minute, &second) == 6) {
-        Serial.println("Parsing successful");
 
         struct tm tmTime;
         tmTime.tm_year = year - 1900;
