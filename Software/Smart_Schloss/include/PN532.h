@@ -7,11 +7,11 @@ class PN532 {
 public:
   PN532(uint8_t sdaPin, uint8_t sclPin);
   void begin();
-  bool isCardPresent();
+  // bool isCardPresent();
   String readCard();
   String getCurrentUID();
   Adafruit_PN532 nfc; // Move nfc here to be accessible outside the class
-
+  void resetCurrentUID();
 private:
   uint8_t sdaPin;
   uint8_t sclPin;
