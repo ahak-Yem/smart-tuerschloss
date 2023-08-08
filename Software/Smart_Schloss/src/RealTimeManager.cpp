@@ -5,6 +5,16 @@ RealTimeManager::RealTimeManager(const char* ntpServer, int timeZoneOffset)
     : ntpServer(ntpServer), timeZoneOffset(timeZoneOffset),
       timeClient(ntpUDP, ntpServer, timeZoneOffset * 3600) {}
 
+RealTimeManager::~RealTimeManager() {
+    // Release any resources or perform cleanup here
+    timeClient.end(); // End the NTPClient
+
+    // Clean up fields
+    ntpServer = nullptr;
+    timeZoneOffset = 0;
+    // Clean up any other fields you might have
+}
+
 void RealTimeManager::begin() {
     timeClient.begin();
     timeClient.update(); // Synchronize time with NTP server

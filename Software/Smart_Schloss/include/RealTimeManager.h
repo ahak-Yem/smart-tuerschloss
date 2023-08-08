@@ -8,12 +8,13 @@
 class RealTimeManager {
 private:
     const char* ntpServer;
-    int timeZoneOffset; // Changed from const to variable to adjust for daylight saving time
+    int timeZoneOffset;
     WiFiUDP ntpUDP;
     NTPClient timeClient;
 
 public:
     RealTimeManager(const char* ntpServer, int timeZoneOffset);
+    ~RealTimeManager(); // Destructor
     void begin();
     void update();
     String getCurrentDate();
