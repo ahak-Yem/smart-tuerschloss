@@ -303,27 +303,37 @@ void DB::updateBookingState(UpdateBookingStateQuery updateBookingQuery)
 
 void DB::updateBoxDoorState(UpdateBoxDoorState updateBoxState){
     HTTPClient http;
-    http.setTimeout(10000); // Set timeout to 10 seconds
+    http.clearAllCookies();
+    http.setTimeout(30000);
 
-    String queryURL;
-    String kastenID = updateBoxState.kastenID;
-    String tuerZustand =(updateBoxState.tuerZustand==BoxDoorStateEnum::Zu ? "Zu" : "Auf");
-    bool istBelegt = updateBoxState.istBelegt;
+    String queryURL = String(serverURL) + "update_door_state_box/";
 
-    // Convert boolean istBelegt to string value
-    String istBelegtValue = (istBelegt ? "ja" : "nein");
+    if (updateBoxState.kastenID != "" ) {
+        //Construct the JSON request body
+        StaticJsonDocument<256> requestBody;
+        requestBody["node_id"] = updateBoxState.kastenID;
+        requestBody["istBelegt"] = updateBoxState.istBelegt;
+        requestBody["tuerZustand"] = updateBoxState.tuerZustand;
 
-    queryURL = String(serverURL) + "update_box_door_state.php?kastenID=" + kastenID + "&tuerZustand=" + tuerZustand + "&istBelegt=" + istBelegtValue;
+        // Start the HTTP client
+        http.begin(queryURL);
+        http.addHeader("Content-Type", "application/json");
+        http.addHeader("Accept", "*/*");
+        http.addHeader("Accept-Encoding", "gzip, deflate, br");
 
-    http.begin(queryURL);
-    int httpCode = http.GET();
-    if (httpCode == HTTP_CODE_OK) {
-        String payload = http.getString();
-        Serial.println(payload);
-    } else {
-        Serial.println("HTTP GET request failed");
+        // Serialize the JSON body
+        String requestBodyStr;
+        serializeJson(requestBody, requestBodyStr);
+
+        int httpCode = http.POST(requestBodyStr);
+        if (httpCode == HTTP_CODE_OK) {
+            String payload = http.getString();
+            http.end();
+            Serial.println(payload);
+        } else {
+            Serial.println("HTTP POST request failed");
+        }
     }
-    http.end();
 }
 
 void DB::updateKastenZugangState(UpdateKastenZugangState updateKastenState){
