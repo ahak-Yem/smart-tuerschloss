@@ -34,4 +34,12 @@ void PinsExpander::TurnHigh(const int pin, int numberOfPins) {
 void PinsExpander::TurnLow(const int pin, int numberOfPins) {
   mcp.digitalWrite(pin, LOW);
 }
-    
+
+int* PinsExpander::readAllPins(const int *inputPins, int numberOfPins)
+{
+    int* pinStates = new int[numberOfPins];
+    for (int i = 0; i < numberOfPins; i++) {
+        pinStates[i] = mcp.digitalRead(inputPins[i]);
+    }
+    return pinStates;
+}

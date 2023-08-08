@@ -19,5 +19,6 @@ class PinsExpander{
     void setPinModeInput(const int *pins, int numberOfPins); //Sets all inputPins array as input
     void TurnHigh(const int pin, int numberOfPins); //Turn passed pins HIGH
     void TurnLow(const int pin, int numberOfPins); //Turn passed pins LOW
+    int* readAllPins(const int *inputPins, int numberOfPins);
 };
 #endif
