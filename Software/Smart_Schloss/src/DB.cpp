@@ -9,6 +9,7 @@ DB::DB(const char* serverURL) {
 void DB::runQuery(QueryName query, FetchBookingDataQuery fetchParameter) {
 // Perform the HTTP GET request to fetch data from the server
     HTTPClient http;
+    http.setTimeout(10000); // Set timeout to 10 seconds
     String queryURL;
     String uid=fetchParameter.uid;
     if(query==FETCH_BOOKING_DATA)
@@ -38,6 +39,8 @@ void DB::runQuery(QueryName query, InsertBoxAccessQuery insertQuery)
 {   
     // Perform the HTTP GET request to fetch data from the server
     HTTPClient http;
+    http.setTimeout(10000); // Set timeout to 10 seconds
+
     String queryURL;
     String userId=insertQuery.userId;
     bool isClosed=insertQuery.isClosed;
@@ -172,6 +175,8 @@ void DB::updateKeyState(UpdateKeyStateQuery updateKeyQuery)
 {
    // Perform the HTTP GET request to update data in the schluessel table
     HTTPClient http;
+    http.setTimeout(10000); // Set timeout to 10 seconds
+
     String queryURL;
     String schluesselID = updateKeyQuery.schluesselID;
     String schluesselZustand = keyStateToString(updateKeyQuery.schluesselZustand);
@@ -197,6 +202,8 @@ void DB::updateBookingState(UpdateBookingStateQuery updateBookingQuery)
 {
     // Perform the HTTP GET request to update data in the buchung table
     HTTPClient http;
+    http.setTimeout(10000); // Set timeout to 10 seconds
+
     String queryURL;
     String buchungID = updateBookingQuery.buchungID;
     String zustand = bookingZustandToString(updateBookingQuery.zustand);
@@ -207,11 +214,11 @@ void DB::updateBookingState(UpdateBookingStateQuery updateBookingQuery)
         queryURL = String(serverURL) + "update_booking_state.php/?buchungID=" + buchungID + "&zustand=" + zustand;
 
         if (abholungszeit != "null" && abholungszeit !="") {
-            queryURL += "&abholungszeit=" + abholungszeit;
+            queryURL += "&abholungszeit=" + this->urlEncode(abholungszeit);
         }
 
         if (abgabezeit != "null" && abgabezeit !="") {
-            queryURL += "&abgabezeit=" + abgabezeit;
+            queryURL += "&abgabezeit=" + this->urlEncode(abgabezeit);
         }
         Serial.println(queryURL);
         http.begin(queryURL);
@@ -231,6 +238,8 @@ void DB::updateBookingState(UpdateBookingStateQuery updateBookingQuery)
 
 void DB::updateBoxDoorState(UpdateBoxDoorState updateBoxState){
     HTTPClient http;
+    http.setTimeout(10000); // Set timeout to 10 seconds
+
     String queryURL;
     String kastenID = updateBoxState.kastenID;
     String tuerZustand =(updateBoxState.tuerZustand==BoxDoorStateEnum::Zu ? "Zu" : "Auf");
@@ -254,6 +263,8 @@ void DB::updateBoxDoorState(UpdateBoxDoorState updateBoxState){
 
 void DB::updateKastenZugangState(UpdateKastenZugangState updateKastenState){
     HTTPClient http;
+    http.setTimeout(10000); // Set timeout to 10 seconds
+
     String queryURL;
     String ID = updateKastenState.ID;
     bool IstZu = updateKastenState.IstZu;
@@ -270,6 +281,23 @@ void DB::updateKastenZugangState(UpdateKastenZugangState updateKastenState){
         Serial.println("HTTP GET request failed");
     }
     http.end();
+}
+
+String DB::urlEncode(String value)
+{
+    String encodedValue = "";
+    char c;
+    for (size_t i = 0; i < value.length(); i++) {
+        c = value.charAt(i);
+        if (isAlphaNumeric(c)) {
+            encodedValue += c;
+        } else if (c == ' ') {
+            encodedValue += "+";
+        } else {
+            encodedValue += String('%') + String(c, HEX);
+        }
+    }
+    return encodedValue;
 };
 
 String DB::keyStateToString(KeyStateEnum::KeyState state) {
@@ -286,6 +314,7 @@ String DB::keyStateToString(KeyStateEnum::KeyState state) {
             return "";
     }
 }
+
 void DB::clearCurrentBookings(){
     this->currentBookings.empty();
 };

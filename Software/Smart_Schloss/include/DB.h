@@ -122,6 +122,7 @@ private:
     void updateBookingState(UpdateBookingStateQuery updateBookingQuery);
     void updateBoxDoorState(UpdateBoxDoorState updateBoxState);
     void updateKastenZugangState(UpdateKastenZugangState updateKastenState);
+    String urlEncode(String value);
 };
 
 #endif
