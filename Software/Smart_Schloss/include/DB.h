@@ -101,6 +101,7 @@ struct UpdateKastenZugangState {
 class DB {
 public:
     DB(const char* serverURL);
+    ~DB();
     void runQuery(QueryName query, FetchBookingDataQuery fetchParameter);
     void runQuery(QueryName query, InsertBoxAccessQuery insertQuery);
     void runQuery(QueryName query, UpdateKeyStateQuery updateKeyQuery);

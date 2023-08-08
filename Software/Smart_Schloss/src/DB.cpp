@@ -4,6 +4,8 @@
 DB::DB(const char* serverURL) {
     Serial.println("DB initialized");
     this->serverURL = serverURL;
+}
+DB::~DB(){
 };
 
 void DB::runQuery(QueryName query, FetchBookingDataQuery fetchParameter) {
