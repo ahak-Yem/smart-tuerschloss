@@ -250,33 +250,47 @@ void DB::updateKeyState(UpdateKeyStateQuery updateKeyQuery)
     }
 };
 
+//TODO(Need to be fixed with Julien)
 void DB::updateBookingState(UpdateBookingStateQuery updateBookingQuery)
 {
-    // Perform the HTTP GET request to update data in the buchung table
+    /// Perform the HTTP GET request to update data in the buchung table
     HTTPClient http;
-    http.setTimeout(10000); // Set timeout to 10 seconds
+    http.setTimeout(30000);
+    http.clearAllCookies();
 
-    String queryURL;
+    String queryURL = String(serverURL) + "update_booking_state";
+
     String buchungID = updateBookingQuery.buchungID;
     String zustand = bookingZustandToString(updateBookingQuery.zustand);
     String abholungszeit = updateBookingQuery.abholungszeit;
     String abgabezeit = updateBookingQuery.abgabezeit;
 
+    http.addHeader("Content-Type", "application/json");
+    http.addHeader("Accept", "*/*");
+    http.addHeader("Accept-Encoding", "gzip, deflate, br");
+
+
     if (buchungID != "" && buchungID != "0" && updateBookingQuery.zustand >= BuchungZustandEnum::gebucht && updateBookingQuery.zustand <= BuchungZustandEnum::spaet) {
-        queryURL = String(serverURL) + "update_booking_state.php/?buchungID=" + buchungID + "&zustand=" + zustand;
-
+        StaticJsonDocument<256> requestBody;
+        requestBody["buchungID"] = buchungID;
+        requestBody["zustand"]=zustand;
         if (abholungszeit != "null" && abholungszeit !="") {
-            queryURL += "&abholungszeit=" + this->urlEncode(abholungszeit);
+            requestBody["abholungszeit"]=abholungszeit;
+        }
+        if (abgabezeit != "null" && abgabezeit !="") {
+            requestBody["abgabezeit"]=abgabezeit;
         }
 
-        if (abgabezeit != "null" && abgabezeit !="") {
-            queryURL += "&abgabezeit=" + this->urlEncode(abgabezeit);
-        }
+        // Serialize the JSON body
+        String requestBodyStr;
+        serializeJson(requestBody, requestBodyStr);
+
         http.begin(queryURL);
-        int httpCode = http.GET();
+        int httpCode = http.POST(requestBodyStr);
         if (httpCode == HTTP_CODE_OK) {
             String payload = http.getString();
             Serial.println(payload);
+            http.end();
         }
         else
         {    
