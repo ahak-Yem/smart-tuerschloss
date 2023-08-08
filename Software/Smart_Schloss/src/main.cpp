@@ -67,7 +67,8 @@ const char* password = "123456789"; //TODO: Change wifi data as wished.
 //DoorState doorstate;
 
 //DB section
-const char* serverURL = "http://192.168.187.99/"; //TODO: Change server as wished.
+const char* serverURL = "http://64.226.76.247:8080/key-management/";
+
 //Init DB instance with target server. 
 std::vector<BookingData> currentUserBookings;
 
@@ -209,9 +210,9 @@ void rfidReaderTrigger(String content) {
           db.runQuery(UPDATE_BOOKING_STATE,updateBookingQuery);
         }
 
-        //Step9: Close lock
-        //TODO:Uncomment this after debug
-        // delay(10000);
+        // Step9: Close lock
+        // TODO:Uncomment this after debug
+        //delay(10000);
         pinsExpander.TurnLow(outputPins[boxPin],1);
       }
       else
