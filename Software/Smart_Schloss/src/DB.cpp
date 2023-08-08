@@ -5,6 +5,7 @@ DB::DB(const char* serverURL) {
     Serial.println("DB initialized");
     this->serverURL = serverURL;
 }
+
 DB::~DB(){
 };
 
@@ -12,6 +13,7 @@ void DB::runQuery(QueryName query, FetchBookingDataQuery fetchParameter) {
     // Perform the HTTP POST request to fetch data from the server
     HTTPClient http;
     http.setTimeout(30000); // Set timeout to 30 seconds
+    http.clearAllCookies();
     
     String queryURL;
     String uid = fetchParameter.uid;
@@ -55,17 +57,33 @@ void DB::runQuery(QueryName query, InsertBoxAccessQuery insertQuery)
 {   
     // Perform the HTTP GET request to fetch data from the server
     HTTPClient http;
-    http.setTimeout(10000); // Set timeout to 10 seconds
+    http.setTimeout(30000); // Set timeout to 10 seconds
+    http.clearAllCookies();
 
     String queryURL;
     String userId=insertQuery.userId;
     bool isClosed=insertQuery.isClosed;
+
     if(query==INSERT_BOX_ACCESS)
     {
+        String queryURL = String(serverURL) + "insert_box_access/";
         if(userId != "" && userId!="0"){
-            queryURL = String(serverURL) + "insert_box_access.php/?user_id=" + userId + "&ist_zu=" + (isClosed ? "true" : "false");
+
+            // Create the POST data JSON object
+            StaticJsonDocument<256> requestBody;
+            requestBody["user_id"] = userId;
+            requestBody["ist_zu"] = isClosed;
+
+            // Serialize the JSON body
+            String requestBodyStr;
+            serializeJson(requestBody, requestBodyStr);
+
             http.begin(queryURL);
-            int httpCode = http.GET();
+            http.addHeader("Content-Type", "application/json");
+            http.addHeader("Accept", "*/*");
+            http.addHeader("Accept-Encoding", "gzip, deflate, br");
+
+            int httpCode = http.POST(requestBodyStr);
             if (httpCode == HTTP_CODE_OK) {
                 String payload = http.getString();
                 Serial.println(payload);
