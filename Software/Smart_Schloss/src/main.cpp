@@ -11,6 +11,9 @@
 #include "DB.h"
 #include "RealTimeManager.h"
 
+//Declare functions
+void rfidReaderTrigger(String content);
+void cleanUpVariables();
 //Pins-Expander section 
 //I2C pins for pins expander
   #define SDA_MCP 32
@@ -123,101 +126,98 @@ void setup() {
 }
 
 void loop() {
-  
   //Trigger 1: RFID is scanned
   //Step1: Reads the RFID card here-----------------------------------
   content = pn532.readCard();
   if(content!=""){
-
-    //Step2: Fetch for bookings data in DB
-    if(content!=""){
-      Serial.print("RFID_UID: ");
-      fetchQuery.uid=content.c_str();
-      db.runQuery(FETCH_BOOKING_DATA,fetchQuery);
-      currentUserBookings=db.getCurrentBookings();
-      //Step3: Process the bookings data
-      if(currentUserBookings.size() != 0){
-        Serial.println("Number of bookings: " + String(currentUserBookings.size()));
-
-        for (BookingData booking : currentUserBookings) {
-          Serial.print("Current booking: ");
-          Serial.println(booking.buchungID);
-
-          //Step4: Check if the booking valid
-          bool isBookingValid= lock.validateBooking(booking,timeManager);
-          if(isBookingValid==true)
-          {
-            //Step5: Open lock
-            int boxPin=lock.BoxLockPin(booking.kastenID);
-            pinsExpander.TurnHigh(outputPins[boxPin],1);
-
-            //Step6: Register box access in DB
-            insertQuery.isClosed=true; 
-            insertQuery.userId=booking.userID;
-            db.runQuery(INSERT_BOX_ACCESS,insertQuery);
-            delay(50);
-
-            //Step7: Update Key state in DB
-            updateKeyQuery.schluesselID=booking.schluesselID;
-            if(String(booking.zustandSchluessel) == db.keyStateToString(KeyStateEnum::reserviert) or 
-              String(booking.zustandSchluessel) == db.keyStateToString(KeyStateEnum::verfuegbar)){
-              updateKeyQuery.schluesselZustand=KeyStateEnum::abgeholt;
-              db.runQuery(UPDATE_KEY_STATE,updateKeyQuery);
-            }
-            else if(String(booking.zustandSchluessel) == db.keyStateToString(KeyStateEnum::abgeholt)){
-              updateKeyQuery.schluesselZustand=KeyStateEnum::verfuegbar;
-              db.runQuery(UPDATE_KEY_STATE,updateKeyQuery);
-            }
-            else{
-              Serial.println("Der Schluessel is verloren");
-            }
-            delay(50);
-
-            //Step8: Update booking state
-            updateBookingQuery.buchungID=booking.buchungID;
-            if(String(booking.zustandBuchung)==db.bookingZustandToString(BuchungZustandEnum::gebucht)){
-              String currentTimestamp= timeManager.getCurrentDateTime();
-              updateBookingQuery.abholungszeit=currentTimestamp.c_str();
-              updateBookingQuery.zustand=BuchungZustandEnum::abgeholt;
-              db.runQuery(UPDATE_BOOKING_STATE,updateBookingQuery);
-            }
-            else if(String(booking.zustandBuchung)==db.bookingZustandToString(BuchungZustandEnum::abgeholt) or
-             String(booking.zustandBuchung)==db.bookingZustandToString(BuchungZustandEnum::spaet)){
-              Serial.println("The booking was abgeholt or spaet");
-              String currentTimestamp= timeManager.getCurrentDateTime();
-              updateBookingQuery.abgabezeit=currentTimestamp.c_str();
-              updateBookingQuery.zustand=BuchungZustandEnum::zurueckgegeben;
-              db.runQuery(UPDATE_BOOKING_STATE,updateBookingQuery);
-            }
-
-            //Step9: Close lock
-            delay(10000);
-            pinsExpander.TurnLow(outputPins[boxPin],1);
-          }
-          else{
-            Serial.println("Booking is  not valid");
-            delay(5000);
-          }
-        }       
-      }
-      else{
-        Serial.println("The user with the rfid_uid: "+ content +" has no bookings");      }
-    }
-    else{
-      Serial.println("No RFID_UID");
-    }
+    rfidReaderTrigger(content);
+    //Clean this to be reused for another scan.
+    fetchQuery=FetchBookingDataQuery(); 
+    insertQuery=InsertBoxAccessQuery();
+    updateKeyQuery=UpdateKeyStateQuery();
+    updateBookingQuery=UpdateBookingStateQuery();
+    updateBoxDoorQuery=UpdateBoxDoorState();
+    updateKastenzugangQuery=UpdateKastenZugangState(); 
+    content="";
+    pn532.resetCurrentUID(); 
+    db.clearCurrentBookings();
   }
   else{
-    //No rfid do nothing.
+    Serial.println("No RFID_UID");
   }
-  //Clean this to be reused for another scan.
-  fetchQuery=FetchBookingDataQuery(); 
-  insertQuery=InsertBoxAccessQuery();
-  updateKeyQuery=UpdateKeyStateQuery();
-  updateBookingQuery=UpdateBookingStateQuery();
-  updateBoxDoorQuery=UpdateBoxDoorState();
-  updateKastenzugangQuery=UpdateKastenZugangState(); 
-  content="";
-  pn532.resetCurrentUID(); 
-  db.clearCurrentBookings();
+}
+
+void rfidReaderTrigger(String content) {
+  //Step2: Fetch for bookings data in DB
+  Serial.print("RFID_UID: ");
+  fetchQuery.uid=content.c_str();
+  db.runQuery(FETCH_BOOKING_DATA,fetchQuery);
+  currentUserBookings=db.getCurrentBookings();
+  //Step3: Process the bookings data
+  if(currentUserBookings.size() != 0){
+    Serial.println("Number of bookings: " + String(currentUserBookings.size()));
+    for (BookingData booking : currentUserBookings) {
+      Serial.print("Current booking: ");
+      Serial.println(booking.buchungID);
+
+      //Step4: Check if the booking valid
+      bool isBookingValid= lock.validateBooking(booking,timeManager);
+      if(isBookingValid==true)
+      {
+        //Step5: Open lock
+        int boxPin=lock.BoxLockPin(booking.kastenID);
+        pinsExpander.TurnHigh(outputPins[boxPin],1);
+
+        //Step6: Register box access in DB
+        insertQuery.isClosed=true; 
+        insertQuery.userId=booking.userID;
+        db.runQuery(INSERT_BOX_ACCESS,insertQuery);
+        delay(50);
+
+        //Step7: Update Key state in DB
+        updateKeyQuery.schluesselID=booking.schluesselID;
+        if(String(booking.zustandSchluessel) == db.keyStateToString(KeyStateEnum::reserviert) or 
+        String(booking.zustandSchluessel) == db.keyStateToString(KeyStateEnum::verfuegbar)){
+          updateKeyQuery.schluesselZustand=KeyStateEnum::abgeholt;
+          db.runQuery(UPDATE_KEY_STATE,updateKeyQuery);
+        }
+        else if(String(booking.zustandSchluessel) == db.keyStateToString(KeyStateEnum::abgeholt)){
+          updateKeyQuery.schluesselZustand=KeyStateEnum::verfuegbar;
+          db.runQuery(UPDATE_KEY_STATE,updateKeyQuery);
+        }
+        else{
+         Serial.println("Der Schluessel is verloren");
+        }
+        delay(50);
+
+        //Step8: Update booking state
+        updateBookingQuery.buchungID=booking.buchungID;
+        if(String(booking.zustandBuchung)==db.bookingZustandToString(BuchungZustandEnum::gebucht)){
+          String currentTimestamp= timeManager.getCurrentDateTime();
+          updateBookingQuery.abholungszeit=currentTimestamp.c_str();
+          updateBookingQuery.zustand=BuchungZustandEnum::abgeholt;
+          db.runQuery(UPDATE_BOOKING_STATE,updateBookingQuery);
+        }
+        else if(String(booking.zustandBuchung)==db.bookingZustandToString(BuchungZustandEnum::abgeholt) or
+        String(booking.zustandBuchung)==db.bookingZustandToString(BuchungZustandEnum::spaet)){
+          Serial.println("The booking was abgeholt or spaet");
+          String currentTimestamp= timeManager.getCurrentDateTime();
+          updateBookingQuery.abgabezeit=currentTimestamp.c_str();
+          updateBookingQuery.zustand=BuchungZustandEnum::zurueckgegeben;
+          db.runQuery(UPDATE_BOOKING_STATE,updateBookingQuery);
+        }
+
+        //Step9: Close lock
+        delay(10000);
+        pinsExpander.TurnLow(outputPins[boxPin],1);
+      }
+      else
+      {
+        Serial.println("Booking is  not valid");
+      }
+    }       
+  }
+  else{
+    Serial.println("The user with the rfid_uid: "+ content +" has no bookings");      
+  } 
 }
