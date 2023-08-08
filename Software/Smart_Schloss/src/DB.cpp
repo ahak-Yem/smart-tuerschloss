@@ -220,7 +220,6 @@ void DB::updateBookingState(UpdateBookingStateQuery updateBookingQuery)
         if (abgabezeit != "null" && abgabezeit !="") {
             queryURL += "&abgabezeit=" + this->urlEncode(abgabezeit);
         }
-        Serial.println(queryURL);
         http.begin(queryURL);
         int httpCode = http.GET();
         if (httpCode == HTTP_CODE_OK) {
@@ -339,3 +338,4 @@ String DB::bookingZustandToString(BuchungZustandEnum::BuchungZustand zustand) {
             return "";
     }
 };
+
