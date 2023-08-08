@@ -167,7 +167,7 @@ void rfidReaderTrigger(String content) {
       if(isBookingValid==true)
       {
         //Step5: Open lock
-        int boxPin=lock.BoxLockPin(booking.kastenID);
+        int boxPin=lock.MapBoxLockPin(booking.kastenID);
         pinsExpander.TurnHigh(outputPins[boxPin],1);
 
         //Step6: Register box access in DB

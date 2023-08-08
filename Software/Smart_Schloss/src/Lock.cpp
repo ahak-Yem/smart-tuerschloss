@@ -55,7 +55,7 @@ bool Lock::validateBooking(BookingData booking, RealTimeManager &timeManager)
 }
 
 
-int Lock::BoxLockPin(const char* boxId){
+int Lock::MapBoxLockPin(const char* boxId){
   if (boxId) {
     // Convert the box ID to an integer
     int boxNumber = atoi(boxId);

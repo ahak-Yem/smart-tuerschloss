@@ -15,5 +15,5 @@ class Lock{
     public:
     Lock(); 
     bool validateBooking(BookingData booking,RealTimeManager &timeManager);
-    int BoxLockPin(const char* boxId);
+    int MapBoxLockPin(const char* boxId);
 };
