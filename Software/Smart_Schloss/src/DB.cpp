@@ -9,33 +9,47 @@ DB::~DB(){
 };
 
 void DB::runQuery(QueryName query, FetchBookingDataQuery fetchParameter) {
-// Perform the HTTP GET request to fetch data from the server
+    // Perform the HTTP POST request to fetch data from the server
     HTTPClient http;
-    http.setTimeout(10000); // Set timeout to 10 seconds
+    http.setTimeout(30000); // Set timeout to 30 seconds
+    
     String queryURL;
-    String uid=fetchParameter.uid;
-    if(query==FETCH_BOOKING_DATA)
-    {
-        if(uid!=""){
-            queryURL = String(serverURL) + "fetch_booking_data.php?rfid_uid="+ uid;
+    String uid = fetchParameter.uid;
+
+    if (query == FETCH_BOOKING_DATA) {
+        if (uid != "") {
+            queryURL = String(serverURL) + "key_availability/";
+
+            // Create the POST data JSON object
+            DynamicJsonDocument postDataJson(128);
+            postDataJson["rfid_uid"] = uid;
+
+            // Serialize the JSON object to a string
+            String postData;
+            serializeJson(postDataJson, postData);
+
+            // Start the HTTP client
             http.begin(queryURL);
-            int httpCode = http.GET();
+            http.addHeader("Content-Type", "application/json");
+            http.addHeader("Accept", "*/*");
+            http.addHeader("Accept-Encoding", "gzip, deflate, br");
+
+            int httpCode = http.POST(postData);
+
             if (httpCode == HTTP_CODE_OK) {
                 String payload = http.getString();
                 std::vector<JsonObject> jsonObjects = deserializeJsonObj(payload);
                 processBookingData(jsonObjects);
-            } 
-            else{
-                Serial.println("HTTP GET request failed");
+            } else {
+                Serial.println("HTTP POST request failed");
             }
             http.end();
         }
-    }
-    else{
+    } else {
         Serial.println("Invalid query or function is used wrong.");
         return;
     }
-};
+}
 
 void DB::runQuery(QueryName query, InsertBoxAccessQuery insertQuery)
 {   
@@ -47,7 +61,7 @@ void DB::runQuery(QueryName query, InsertBoxAccessQuery insertQuery)
     String userId=insertQuery.userId;
     bool isClosed=insertQuery.isClosed;
     if(query==INSERT_BOX_ACCESS)
-    {//http://insert_box_access.php/?user_id=1&ist_zu=true
+    {
         if(userId != "" && userId!="0"){
             queryURL = String(serverURL) + "insert_box_access.php/?user_id=" + userId + "&ist_zu=" + (isClosed ? "true" : "false");
             http.begin(queryURL);
@@ -92,12 +106,9 @@ void DB::runQuery(QueryName query, UpdateKastenZugangState updateBoxState){
     }
 }
 
-
 std::vector<BookingData> DB::getCurrentBookings()
 {
-    Serial.println("Getting current bookings");
     if(this->currentBookings.size() > 0){
-        Serial.println("Current bookings are not empty!");
     }
     else
     {
@@ -109,39 +120,49 @@ std::vector<BookingData> DB::getCurrentBookings()
 //Deserialize the JSON response and create a vector of json objects.
 std::vector<JsonObject> DB::deserializeJsonObj(String payload) {
     // Calculate the required capacity dynamically based on payload size
-    const size_t capacity = JSON_ARRAY_SIZE(10) + 10 * JSON_OBJECT_SIZE(8) + payload.length();
+    const size_t capacity = JSON_OBJECT_SIZE(1) + JSON_ARRAY_SIZE(10) + 10 * JSON_OBJECT_SIZE(9) + payload.length();
     DynamicJsonDocument doc(capacity);
 
-    // Parse the JSON data
     DeserializationError error = deserializeJson(doc, payload);
 
-    // Check for parsing errors
     if (error) {
         Serial.print("deserializeJson() failed: ");
         Serial.println(error.c_str());
-        return std::vector<JsonObject>(); // Return an empty vector on error
+        return std::vector<JsonObject>();
     }
 
     // Extract the data from JSON and return it as a vector of JsonObjects
+
     std::vector<JsonObject> jsonObjects;
-    JsonArray dataArray = doc.as<JsonArray>();
-    for (JsonObject obj : dataArray) {
-        jsonObjects.push_back(obj);
+    JsonObject root = doc.as<JsonObject>();
+    
+    // Iterate through the numeric keys and extract the JSON objects
+    for (JsonPair keyValue : root) {
+        if (keyValue.value().is<JsonObject>()) {
+            jsonObjects.push_back(keyValue.value().as<JsonObject>());
+        }
     }
+    
     return jsonObjects;
-};
+}
 
 //Extracts only BookingData from a JSON object.
 BookingData DB::extractBookingData(JsonObject obj){
     BookingData bookingData;
     bookingData.userID = obj["UserID"];
     bookingData.buchungID = obj["Buchung_ID"];
-    bookingData.reservierungsdatum = obj["Reservierungsdatum"];
-    bookingData.rueckgabedatum = obj["Rueckgabedatum"];
+    String correctedReservierungsdatum = this->correctDrupalTimestamp(obj["Reservierungsdatum"]);
+    bookingData.reservierungsdatum = strdup(correctedReservierungsdatum.c_str());
+
+    String correctedRueckgabedatum = this->correctDrupalTimestamp(obj["Rueckgabedatum"]);
+    bookingData.rueckgabedatum = strdup(correctedRueckgabedatum.c_str());
+
     bookingData.zustandBuchung = obj["Buchung_Zustand"];
     bookingData.schluesselID = obj["SchluesselID"];
     bookingData.zustandSchluessel = obj["Schluessel_Zustand"];
-    bookingData.kastenID = obj["Kasten_ID"];
+    bookingData.kastenID = obj["KastenID"];
+    bookingData.Kasten_Node_ID = obj["Kasten_Node_ID"];
+    
     return bookingData; 
 };
 
@@ -299,18 +320,29 @@ String DB::urlEncode(String value)
         }
     }
     return encodedValue;
+}
+
+String DB::correctDrupalTimestamp(const char *timestamp)
+{
+    String correctedTimestamp = timestamp;
+    int position = correctedTimestamp.indexOf('T'); // Find the position of 'T'
+
+    if (position != -1) {
+        correctedTimestamp[position] = ' '; // Replace 'T' with space
+    }
+    return correctedTimestamp;
 };
 
 String DB::keyStateToString(KeyStateEnum::KeyState state) {
     switch (state) {
         case KeyStateEnum::reserviert:
-            return "reserviert";
+            return "Reserviert";
         case KeyStateEnum::verfuegbar:
-            return "verfuegbar";
+            return "Verfuegbar";
         case KeyStateEnum::abgeholt:
-            return "abgeholt";
+            return "Abgeholt";
         case KeyStateEnum::verloren:
-            return "verloren";
+            return "Verloren";
         default:
             return "";
     }
@@ -323,19 +355,19 @@ void DB::clearCurrentBookings(){
 String DB::bookingZustandToString(BuchungZustandEnum::BuchungZustand zustand) {
     switch (zustand) {
         case BuchungZustandEnum::gebucht:
-            return "gebucht";
+            return "Gebucht";
         case BuchungZustandEnum::abgeholt:
-            return "abgeholt";
+            return "Abgeholt";
         case BuchungZustandEnum::zurueckgegeben:
-            return "zurueckgegeben";
+            return "Zurueckgegeben";
         case BuchungZustandEnum::storniert:
-            return "storniert";
+            return "Storniert";
         case BuchungZustandEnum::abgesagt:
-            return "abgesagt";
+            return "Abgesagt";
         case BuchungZustandEnum::abgelaufen:
-            return "abgelaufen";
+            return "Abgelaufen";
         case BuchungZustandEnum::spaet:
-            return "spaet";
+            return "Spaet";
         default:
             return "";
     }

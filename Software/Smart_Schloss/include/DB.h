@@ -58,6 +58,7 @@ struct BookingData {
     const char* schluesselID;
     const char* zustandSchluessel;
     const char* kastenID;
+    const char* Kasten_Node_ID;
 };
 
 //Struct to hold parameters for the UpdateKeyState query.
@@ -124,6 +125,8 @@ private:
     void updateBoxDoorState(UpdateBoxDoorState updateBoxState);
     void updateKastenZugangState(UpdateKastenZugangState updateKastenState);
     String urlEncode(String value);
+    String correctDrupalTimestamp(const char* timestamp);
+
 };
 
 #endif
