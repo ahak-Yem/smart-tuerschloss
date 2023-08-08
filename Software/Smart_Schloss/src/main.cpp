@@ -13,7 +13,7 @@
 
 //Declare functions
 void rfidReaderTrigger(String content);
-void cleanUpVariables();
+
 //Pins-Expander section 
 //I2C pins for pins expander
   #define SDA_MCP 32
@@ -68,7 +68,7 @@ const char* password = "123456789"; //TODO: Change wifi data as wished.
 
 //DB section
 const char* serverURL = "http://192.168.187.99/"; //TODO: Change server as wished.
-DB db(serverURL); //Init DB instance with target server. 
+//Init DB instance with target server. 
 std::vector<BookingData> currentUserBookings;
 
 //All possible queries
@@ -140,7 +140,8 @@ void loop() {
     updateKastenzugangQuery=UpdateKastenZugangState(); 
     content="";
     pn532.resetCurrentUID(); 
-    db.clearCurrentBookings();
+    
+    currentUserBookings.empty();
   }
   else{
     Serial.println("No RFID_UID");
@@ -148,6 +149,7 @@ void loop() {
 }
 
 void rfidReaderTrigger(String content) {
+  DB db(serverURL);
   //Step2: Fetch for bookings data in DB
   Serial.print("RFID_UID: ");
   fetchQuery.uid=content.c_str();
@@ -208,7 +210,8 @@ void rfidReaderTrigger(String content) {
         }
 
         //Step9: Close lock
-        delay(10000);
+        //TODO:Uncomment this after debug
+        // delay(10000);
         pinsExpander.TurnLow(outputPins[boxPin],1);
       }
       else
