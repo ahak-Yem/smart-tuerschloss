@@ -8,11 +8,15 @@
 #include "PN532.h"
 #include "ManagingWifi.h"
 #include "PinsExpander.h"
+#include "DB.h"
+#include "RealTimeManager.h"
 
 //Pins-Expander section 
-//Use this variables to turn the wished MCP23017 pin(s) on/off.
+//I2C pins for pins expander
   #define SDA_MCP 32
   #define SCL_MCP 33
+
+  //Use this variables to turn the wished MCP23017 pin(s) on/off.
   #define PE_A0 0    
   #define PE_A1 1     
   #define PE_A2 2     
@@ -29,40 +33,74 @@
   #define PE_B5 13
   #define PE_B6 14
   #define PE_B7 15
+
   PinsExpander pinsExpander(0x20,SDA_MCP,SCL_MCP);
-  const int outputPins[] = {PE_B1,PE_B3,PE_A5};
-  int numberOfOutputPins = sizeof(outputPins) / sizeof(outputPins[0]);
-//........................ -> // Uncomment the wished line when using the MCP23017
+
+  //A0 - A7 als output pins - Hinweis: Nutze am Anfang A0 und dann nach und nach bis A7
+  const int outputPins[] = {PE_A0,PE_A1,PE_A2,PE_A3,PE_A4,PE_A5,PE_A6,PE_A7};//Wenn nicht alle belegt sind=löschen
+  int numberOfOutputPins = sizeof(outputPins) / sizeof(outputPins[0]); 
+
+  //B0 - B7 als input pins - Hinweis: Nutze am Anfang B0 und dann nach und nach bis B7
+  const int inputPins[] = {PE_B0,PE_B1,PE_B2,PE_B3,PE_B4,PE_B5,PE_B6,PE_B7};
+  int numberOfInputPins = sizeof(inputPins) / sizeof(inputPins[0]);
+
 
 //RFID section
 //I2C pins for PN532 RFID Reader
 #define PN532_SDA   13   
-#define PN532_SCL   14   
-String content="";
+#define PN532_SCL   14
+
+String content=""; // Variable for UID von Benutzer
 PN532 pn532(PN532_SDA, PN532_SCL);
 
 //Wifi section
 const char* ssid = "Yemen";
-const char* password = "123456789"; //TODO: Change wifi data to the wished one
+const char* password = "123456789"; //TODO: Change wifi data as wished.
+
 //Use after bug is repaired
 //ManagingWifi wifiManager(ssid, password); //Creating an object of this class does all the configuration needed
 
-//Lock section
-int lockState=-1;
-Lock lock1;
 
 //DoorState doorstate;
 
+//DB section
+const char* serverURL = "http://192.168.187.99/"; //TODO: Change server as wished.
+DB db(serverURL); //Init DB instance with target server. 
+std::vector<BookingData> currentUserBookings;
+
+//All possible queries
+FetchBookingDataQuery fetchQuery; //Fetch booking data using RFID.
+InsertBoxAccessQuery insertQuery; //Insert log for box access
+UpdateKeyStateQuery updateKeyQuery; //Update key state when it changes.
+UpdateBookingStateQuery updateBookingQuery; //Update booking data.
+UpdateBoxDoorState updateBoxDoorQuery; //Update door state of box door
+UpdateKastenZugangState updateKastenzugangQuery; //Update the door state of a specific box access.
+
+//Realtime section
+const char* ntpServer = "pool.ntp.org";
+const int timeZoneOffset = 2; // Germany is UTC+2
+RealTimeManager timeManager(ntpServer, timeZoneOffset);
+
+//Lock section
+Lock lock;
+
 void setup() {
   Serial.begin(115200);
+
+  //Pins Expander---------------------------------------------------------------------------------
+  pinsExpander.setup();
+  pinsExpander.setPinModeOutput(outputPins,numberOfOutputPins);
+  pinsExpander.setPinModeInput(inputPins,numberOfInputPins);
+  //End Pins Expander-----------------------------------------------------------------------------//
+  
   //Setup PN532-----------------------------------------------------------------------------------
-  /*pn532.begin();
+  pn532.begin();
   uint32_t versiondata = pn532.nfc.getFirmwareVersion();
   if (!versiondata) {
     Serial.println("Didn't find PN53x board");
     while (1);
   }
-  pn532.nfc.SAMConfig();*/
+  pn532.nfc.SAMConfig();
   //End PN532 setup-------------------------------------------------------------------------------//
 
   //WiFi------------------------------------------------------------------------------------------
@@ -77,50 +115,109 @@ void setup() {
   WiFi.setAutoConnect(true);
   WiFi.setAutoReconnect(true);
   //End WiFi--------------------------------------------------------------------------------------//
-
-  //Pins Expander---------------------------------------------------------------------------------
-  pinsExpander.setup();
-  Wire.begin(SDA_MCP,SCL_MCP);
-  pinsExpander.setPinModeOutput(outputPins,numberOfOutputPins);
-  //End Pins Expander-----------------------------------------------------------------------------//
-
-  //Lock-------------------------------------------------------------------------------------------
-  lock1.OpenLock(15);
-  //End Lock-------------------------------------------------------------------------------------//
+  
+  //TimeManager-----------------------------------------------------------------------------------
+  timeManager.begin();
   
   //doorstate.setup();
 }
 
 void loop() {
-  //Reads the RFID card here-----------------------------------
-    /*if (pn532.isCardPresent()) {
-    Serial.println("Found an RFID card or tag!");
-    uint8_t uid[7];
-    uint8_t uidLength;
-    pn532.readCard(uid, &uidLength);
-    Serial.print("UID Value: ");
-    for (uint8_t i = 0; i < uidLength; i++) {
-      Serial.print(uid[i], HEX);
-      if (uid[i] < 0x10) {
-        content += "0"; // Add leading zero for single-digit hex values
-      }
-      content += String(uid[i], HEX); // Convert byte to hexadecimal and concatenate
-    }
-    Serial.println();
-    delay(2000);
-  }*/
-  //---------------------------------------------------------------//
-
-  //Open lock or turn LED on using PE----------------------------------------
-  pinsExpander.TurnHigh(outputPins,numberOfOutputPins);
-  delay(1000);
-  pinsExpander.TurnLow(outputPins,numberOfOutputPins);
-  delay(1000);
-  //--------------------------------------------------------------//
   
-  /*doorstate.checkState();
-  lockState=lock1.OpenLock("content");
-  if(lockState==1){
-    content="";
-    }*/
+  //Trigger 1: RFID is scanned
+  //Step1: Reads the RFID card here-----------------------------------
+  content = pn532.readCard();
+  if(content!=""){
+
+    //Step2: Fetch for bookings data in DB
+    if(content!=""){
+      Serial.print("RFID_UID: ");
+      fetchQuery.uid=content.c_str();
+      db.runQuery(FETCH_BOOKING_DATA,fetchQuery);
+      currentUserBookings=db.getCurrentBookings();
+      //Step3: Process the bookings data
+      if(currentUserBookings.size() != 0){
+        Serial.println("Number of bookings: " + String(currentUserBookings.size()));
+
+        for (BookingData booking : currentUserBookings) {
+          Serial.print("Current booking: ");
+          Serial.println(booking.buchungID);
+
+          //Step4: Check if the booking valid
+          bool isBookingValid= lock.validateBooking(booking,timeManager);
+          if(isBookingValid==true)
+          {
+            //Step5: Open lock
+            int boxPin=lock.BoxLockPin(booking.kastenID);
+            pinsExpander.TurnHigh(outputPins[boxPin],1);
+
+            //Step6: Register box access in DB
+            insertQuery.isClosed=true; 
+            insertQuery.userId=booking.userID;
+            db.runQuery(INSERT_BOX_ACCESS,insertQuery);
+            delay(50);
+
+            //Step7: Update Key state in DB
+            updateKeyQuery.schluesselID=booking.schluesselID;
+            if(String(booking.zustandSchluessel) == db.keyStateToString(KeyStateEnum::reserviert) or 
+              String(booking.zustandSchluessel) == db.keyStateToString(KeyStateEnum::verfuegbar)){
+              updateKeyQuery.schluesselZustand=KeyStateEnum::abgeholt;
+              db.runQuery(UPDATE_KEY_STATE,updateKeyQuery);
+            }
+            else if(String(booking.zustandSchluessel) == db.keyStateToString(KeyStateEnum::abgeholt)){
+              updateKeyQuery.schluesselZustand=KeyStateEnum::verfuegbar;
+              db.runQuery(UPDATE_KEY_STATE,updateKeyQuery);
+            }
+            else{
+              Serial.println("Der Schluessel is verloren");
+            }
+            delay(50);
+
+            //Step8: Update booking state
+            updateBookingQuery.buchungID=booking.buchungID;
+            if(String(booking.zustandBuchung)==db.bookingZustandToString(BuchungZustandEnum::gebucht)){
+              String currentTimestamp= timeManager.getCurrentDateTime();
+              updateBookingQuery.abholungszeit=currentTimestamp.c_str();
+              updateBookingQuery.zustand=BuchungZustandEnum::abgeholt;
+              db.runQuery(UPDATE_BOOKING_STATE,updateBookingQuery);
+            }
+            else if(String(booking.zustandBuchung)==db.bookingZustandToString(BuchungZustandEnum::abgeholt) or
+             String(booking.zustandBuchung)==db.bookingZustandToString(BuchungZustandEnum::spaet)){
+              Serial.println("The booking was abgeholt or spaet");
+              String currentTimestamp= timeManager.getCurrentDateTime();
+              updateBookingQuery.abgabezeit=currentTimestamp.c_str();
+              updateBookingQuery.zustand=BuchungZustandEnum::zurueckgegeben;
+              db.runQuery(UPDATE_BOOKING_STATE,updateBookingQuery);
+            }
+
+            //Step9: Close lock
+            delay(10000);
+            pinsExpander.TurnLow(outputPins[boxPin],1);
+          }
+          else{
+            Serial.println("Booking is  not valid");
+            delay(5000);
+          }
+        }       
+      }
+      else{
+        Serial.println("The user with the rfid_uid: "+ content +" has no bookings");      }
+    }
+    else{
+      Serial.println("No RFID_UID");
+    }
+  }
+  else{
+    //No rfid do nothing.
+  }
+  //Clean this to be reused for another scan.
+  fetchQuery=FetchBookingDataQuery(); 
+  insertQuery=InsertBoxAccessQuery();
+  updateKeyQuery=UpdateKeyStateQuery();
+  updateBookingQuery=UpdateBookingStateQuery();
+  updateBoxDoorQuery=UpdateBoxDoorState();
+  updateKastenzugangQuery=UpdateKastenZugangState(); 
+  content="";
+  pn532.resetCurrentUID(); 
+  db.clearCurrentBookings();
 }
