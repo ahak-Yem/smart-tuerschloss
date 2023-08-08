@@ -338,24 +338,39 @@ void DB::updateBoxDoorState(UpdateBoxDoorState updateBoxState){
 
 void DB::updateKastenZugangState(UpdateKastenZugangState updateKastenState){
     HTTPClient http;
-    http.setTimeout(10000); // Set timeout to 10 seconds
+    http.clearAllCookies();
+    http.setTimeout(30000);
 
-    String queryURL;
+
+    String queryURL=String(serverURL) + "update_doorstate_kastenzugang/";
+    
     String ID = updateKastenState.ID;
     bool IstZu = updateKastenState.IstZu;
+    if(ID!="" && !ID.isEmpty()){
 
-    queryURL = String(serverURL) + "update_doorstate_kastenzugang.php?ID=" + ID + "&IstZu=" + IstZu;
+        http.addHeader("Content-Type", "application/json");
+        http.addHeader("Accept", "*/*");
+        http.addHeader("Accept-Encoding", "gzip, deflate, br");
+        
+        //Construct the JSON request body
+        StaticJsonDocument<256> requestBody;
+        requestBody["ID"] = ID;
+        requestBody["IstZu"] = IstZu;
 
-    Serial.println(queryURL);
-    http.begin(queryURL);
-    int httpCode = http.GET();
-    if (httpCode == HTTP_CODE_OK) {
-        String payload = http.getString();
-        Serial.println(payload);
-    } else {
-        Serial.println("HTTP GET request failed");
+        // Serialize the JSON body
+        String requestBodyStr;
+        serializeJson(requestBody, requestBodyStr);
+
+        http.begin(queryURL);
+        int httpCode = http.POST(requestBodyStr);
+        if (httpCode == HTTP_CODE_OK) {
+            String payload = http.getString();
+            Serial.println(payload);
+        } else {
+            Serial.println("HTTP GET request failed");
+        }
+        http.end();
     }
-    http.end();
 }
 
 String DB::urlEncode(String value)
