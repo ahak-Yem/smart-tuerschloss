@@ -216,9 +216,10 @@ void DB::updateKeyState(UpdateKeyStateQuery updateKeyQuery)
 {
    // Perform the HTTP GET request to update data in the schluessel table
     HTTPClient http;
-    http.setTimeout(10000); // Set timeout to 10 seconds
-
-    String queryURL;
+    http.clearAllCookies();
+    http.setTimeout(30000);
+    String queryURL = String(serverURL) + "update_key_state";
+    
     String schluesselID = updateKeyQuery.schluesselID;
     String schluesselZustand = keyStateToString(updateKeyQuery.schluesselZustand);
 
@@ -227,11 +228,21 @@ void DB::updateKeyState(UpdateKeyStateQuery updateKeyQuery)
         Serial.println("Error: Invalid value for Schluessel_Zustand. Possible values are: 'reserviert', 'verfuegbar', 'abgeholt', 'verloren'");
         return;
     }
-
     if (schluesselID != "" && schluesselID != "0") {
-        queryURL = String(serverURL) + "update_key_state.php/?SchluesselID=" + schluesselID + "&Schluessel_Zustand=" + schluesselZustand;
+        http.addHeader("Content-Type", "application/json");
+        http.addHeader("Accept", "*/*");
+        http.addHeader("Accept-Encoding", "gzip, deflate, br");
+
+        StaticJsonDocument<256> requestBody;
+        requestBody["SchluesselID"] = schluesselID;
+        requestBody["Schluessel_Zustand"]=schluesselZustand;
+
+        // Serialize the JSON body
+        String requestBodyStr;
+        serializeJson(requestBody, requestBodyStr);
+
         http.begin(queryURL);
-        int httpCode = http.GET();
+        int httpCode = http.POST(requestBodyStr);
         if (httpCode == HTTP_CODE_OK) {
             String payload = http.getString();
             Serial.println(payload);
