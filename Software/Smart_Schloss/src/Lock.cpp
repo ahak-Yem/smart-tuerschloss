@@ -83,6 +83,6 @@ int Lock::MapBoxLockPin(const char* boxId){
   }
   else{
     Serial.println("Box Id is empty!");
-    return false;
+    return -2;
   }   
 }
