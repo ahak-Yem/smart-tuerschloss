@@ -38,13 +38,14 @@ void DB::runQuery(QueryName query, FetchBookingDataQuery fetchParameter) {
 
             if (httpCode == HTTP_CODE_OK) {
                 String payload = http.getString();
-                Serial.println(payload);
+                // Serial.println(payload);
                 std::vector<JsonObject> jsonObjects = deserializeJsonObj(payload);
+                http.end();
                 processBookingData(jsonObjects);
             } else {
                 Serial.println("HTTP POST request failed");
             }
-            http.end();
+            
         }
     } else {
         Serial.println("Invalid query or function is used wrong.");
@@ -167,7 +168,6 @@ std::vector<JsonObject> DB::deserializeJsonObj(String payload) {
 
 //Do something with booking data.
 bool DB::processBookingData(std::vector<JsonObject> data) {
-    Serial.println("processBookingData() is running"); 
     if (data.size() > 0) {
         for (std::vector<JsonObject>::iterator it = data.begin(); it != data.end(); ++it) {
             JsonObject obj = *it;
@@ -204,18 +204,6 @@ bool DB::processBookingData(std::vector<JsonObject> data) {
         return false;             
     }           
 }
-
-            // Print the extracted data for now
-            // Serial.print("UserID: "); Serial.println(bookingData.userID);
-            // Serial.print("Buchung_ID: "); Serial.println(bookingData.buchungID);
-            // Serial.print("Reservierungsdatum: "); Serial.println(bookingData.reservierungsdatum);
-            // Serial.print("Rueckgabedatum: "); Serial.println(bookingData.rueckgabedatum);
-            // Serial.print("Zustand (Buchung): "); Serial.println(bookingData.zustandBuchung);
-            // Serial.print("SchluesselID: "); Serial.println(bookingData.schluesselID);
-            // Serial.print("Zustand (Schluessel): "); Serial.println(bookingData.zustandSchluessel);
-            // Serial.print("Kasten_ID: "); Serial.println(bookingData.kastenID);
-            // Serial.println();
-            // delay(10000);//TODO:remove
 
 void DB::updateKeyState(UpdateKeyStateQuery updateKeyQuery)
 {
