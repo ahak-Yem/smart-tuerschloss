@@ -308,13 +308,18 @@ void DB::updateBoxDoorState(UpdateBoxDoorState updateBoxState){
 
     String queryURL = String(serverURL) + "update_door_state_box/";
 
+
     if (updateBoxState.kastenID != "" ) {
         //Construct the JSON request body
         StaticJsonDocument<256> requestBody;
         requestBody["node_id"] = updateBoxState.kastenID;
         requestBody["istBelegt"] = updateBoxState.istBelegt;
-        requestBody["tuerZustand"] = updateBoxState.tuerZustand;
-
+        if(updateBoxState.tuerZustand==BoxDoorStateEnum::Zu){
+            requestBody["tuerZustand"] =true;
+        }
+        else if(updateBoxState.tuerZustand==BoxDoorStateEnum::Auf){
+            requestBody["tuerZustand"] = false;
+        }
         // Start the HTTP client
         http.begin(queryURL);
         http.addHeader("Content-Type", "application/json");
