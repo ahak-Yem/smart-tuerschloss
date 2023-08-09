@@ -90,6 +90,7 @@ Lock lock;
 
 void setup() {
   Serial.begin(115200);
+  
   //pins expander
   pinsExpander.setup();
   pinsExpander.setPinModeOutput(outputPins,numberOfOutputPins);
@@ -147,8 +148,12 @@ void loop() {
     Serial.println("No RFID_UID");
   }
 
-  //Trigger 2: Door sensor
-  doorSensorTrigger(1);
+  //Trigger 2: Door sensor called every 60seconds
+  unsigned long currentMillis = millis();
+   if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+    doorSensorTrigger(1);
+  }
 }
 
 void rfidReaderTrigger(String content) {
@@ -169,18 +174,19 @@ void rfidReaderTrigger(String content) {
       bool isBookingValid= lock.validateBooking(booking,timeManager);
       if(isBookingValid==true)
       {
+        Serial.println("Booking is valid");
         //Step5: Open lock
-        int boxPin=lock.MapBoxLockPin(booking.kastenID);
+        int boxPin=lock.MapBoxLockPin(booking.kastenID.c_str());
         pinsExpander.TurnHigh(outputPins[boxPin],1);
 
         //Step6: Register box access in DB
         insertQuery.isClosed=true; 
-        insertQuery.userId=booking.userID;
+        insertQuery.userId=booking.userID.c_str();
         db.runQuery(INSERT_BOX_ACCESS,insertQuery);
         delay(50);
 
         //Step7: Update Key state in DB
-        updateKeyQuery.schluesselID=booking.schluesselID;
+        updateKeyQuery.schluesselID=booking.schluesselID.c_str();
         if(String(booking.zustandSchluessel) == db.keyStateToString(KeyStateEnum::reserviert) or 
         String(booking.zustandSchluessel) == db.keyStateToString(KeyStateEnum::verfuegbar)){
           updateKeyQuery.schluesselZustand=KeyStateEnum::abgeholt;
@@ -196,7 +202,7 @@ void rfidReaderTrigger(String content) {
         delay(50);
 
         //Step8: Update booking state
-        updateBookingQuery.buchungID=booking.buchungID;
+        updateBookingQuery.buchungID=booking.buchungID.c_str();
         if(String(booking.zustandBuchung)==db.bookingZustandToString(BuchungZustandEnum::gebucht)){
           String currentTimestamp= timeManager.getCurrentDateTime();
           updateBookingQuery.abholungszeit=currentTimestamp.c_str();
@@ -205,21 +211,19 @@ void rfidReaderTrigger(String content) {
         }
         else if(String(booking.zustandBuchung)==db.bookingZustandToString(BuchungZustandEnum::abgeholt) or
         String(booking.zustandBuchung)==db.bookingZustandToString(BuchungZustandEnum::spaet)){
-          Serial.println("The booking was abgeholt or spaet");
           String currentTimestamp= timeManager.getCurrentDateTime();
           updateBookingQuery.abgabezeit=currentTimestamp.c_str();
           updateBookingQuery.zustand=BuchungZustandEnum::zurueckgegeben;
           db.runQuery(UPDATE_BOOKING_STATE,updateBookingQuery);
         }
 
-        // Step9: Close lock
-        // TODO:Uncomment this after debug
+        // // Step9: Close lock
         delay(10000);
         pinsExpander.TurnLow(outputPins[boxPin],1);
       }
       else
       {
-        Serial.println("Booking is  not valid");
+        Serial.println("Booking is not valid");
       }
     }       
   }
@@ -235,9 +239,6 @@ void doorSensorTrigger(int countOfCurrentSensors){
     countOfCurrentSensors=numberOfInputPins;
   }
 
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= interval) {
-    previousMillis = currentMillis;
         
     int* pinStates = pinsExpander.readAllPins(inputPins, countOfCurrentSensors);
         
@@ -265,4 +266,3 @@ void doorSensorTrigger(int countOfCurrentSensors){
     }
     delete[] pinStates; // Free the dynamically allocated memory
   }
-}

@@ -307,10 +307,10 @@ void DB::updateBoxDoorState(UpdateBoxDoorState updateBoxState){
         requestBody["node_id"] = updateBoxState.kastenID;
         requestBody["istBelegt"] = updateBoxState.istBelegt;
         if(updateBoxState.tuerZustand==BoxDoorStateEnum::Zu){
-            requestBody["tuerZustand"] =true;
+            requestBody["tuerZustand"] =false;
         }
         else if(updateBoxState.tuerZustand==BoxDoorStateEnum::Auf){
-            requestBody["tuerZustand"] = false;
+            requestBody["tuerZustand"] = true;
         }
         // Start the HTTP client
         http.begin(queryURL);
