@@ -13,6 +13,7 @@
 
 //Declare functions
 void rfidReaderTrigger(String content);
+void doorSensorTrigger(int countOfCurrentSensors);
 
 //Pins-Expander section 
 //I2C pins for pins expander
@@ -47,12 +48,10 @@ void rfidReaderTrigger(String content);
   const int inputPins[] = {PE_B0,PE_B1,PE_B2,PE_B3,PE_B4,PE_B5,PE_B6,PE_B7};
   int numberOfInputPins = sizeof(inputPins) / sizeof(inputPins[0]);
 
-
 //RFID section
 //I2C pins for PN532 RFID Reader
 #define PN532_SDA   13   
 #define PN532_SCL   14
-
 String content=""; // Variable for UID von Benutzer
 PN532 pn532(PN532_SDA, PN532_SCL);
 
@@ -63,13 +62,14 @@ const char* password = "123456789"; //TODO: Change wifi data as wished.
 //Use after bug is repaired
 //ManagingWifi wifiManager(ssid, password); //Creating an object of this class does all the configuration needed
 
-
-//DoorState doorstate;
+//Doorstate
+DoorState doorstate;
+unsigned long previousMillis = 0;
+const unsigned long interval = 60000;
+int previousReadings[sizeof(inputPins) / sizeof(inputPins[0])];
 
 //DB section
-const char* serverURL = "http://64.226.76.247:8080/key-management/";
-
-//Init DB instance with target server. 
+const char* serverURL = "http://64.226.76.247:8080/key-management/"; 
 std::vector<BookingData> currentUserBookings;
 
 //All possible queries
@@ -90,14 +90,12 @@ Lock lock;
 
 void setup() {
   Serial.begin(115200);
-
-  //Pins Expander---------------------------------------------------------------------------------
+  //pins expander
   pinsExpander.setup();
   pinsExpander.setPinModeOutput(outputPins,numberOfOutputPins);
   pinsExpander.setPinModeInput(inputPins,numberOfInputPins);
-  //End Pins Expander-----------------------------------------------------------------------------//
   
-  //Setup PN532-----------------------------------------------------------------------------------
+  //RFID reader
   pn532.begin();
   uint32_t versiondata = pn532.nfc.getFirmwareVersion();
   if (!versiondata) {
@@ -105,9 +103,8 @@ void setup() {
     while (1);
   }
   pn532.nfc.SAMConfig();
-  //End PN532 setup-------------------------------------------------------------------------------//
 
-  //WiFi------------------------------------------------------------------------------------------
+  //WiFi
   WiFi.begin(ssid,password);
   Serial.println(String("Connecting to ")+ssid);
   while (WiFi.status() != WL_CONNECTED){
@@ -118,12 +115,14 @@ void setup() {
   Serial.println(WiFi.localIP());
   WiFi.setAutoConnect(true);
   WiFi.setAutoReconnect(true);
-  //End WiFi--------------------------------------------------------------------------------------//
   
-  //TimeManager-----------------------------------------------------------------------------------
+  //Real time manager
   timeManager.begin();
   
-  //doorstate.setup();
+  //Door sensor
+  for (int i = 0; i < numberOfInputPins; i++) {
+    previousReadings[i] = LOW;
+  }
 }
 
 void loop() {
@@ -147,6 +146,9 @@ void loop() {
   else{
     Serial.println("No RFID_UID");
   }
+
+  //Trigger 2: Door sensor
+  doorSensorTrigger(1);
 }
 
 void rfidReaderTrigger(String content) {
@@ -225,4 +227,43 @@ void rfidReaderTrigger(String content) {
   else{
     Serial.println("The user with the rfid_uid: "+ content +" has no bookings");      
   } 
+}
+
+void doorSensorTrigger(int countOfCurrentSensors){
+
+  //To be sure that count of sensors does not exceed the number of pins declared at the beginning
+  if(countOfCurrentSensors>numberOfInputPins){
+    countOfCurrentSensors=numberOfInputPins;
+  }
+
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+        
+    int* pinStates = pinsExpander.readAllPins(inputPins, countOfCurrentSensors);
+        
+    // Compare pinStates with previousReadings
+    for (int i = 0; i < countOfCurrentSensors; i++) {
+      if (pinStates[i] != previousReadings[i]) {
+        updateBoxDoorQuery.kastenID=(doorstate.MapBoxSensorPin(inputPins[i])).c_str();
+        updateBoxDoorQuery.istBelegt=true;
+        DB db(serverURL);
+        // State changed, handle accordingly
+        if (pinStates[i] == HIGH) {
+          if(updateBoxDoorQuery.kastenID!="-1" && updateBoxDoorQuery.kastenID!="-2" && updateBoxDoorQuery.kastenID!="-3"){
+            updateBoxDoorQuery.tuerZustand=BoxDoorStateEnum::Zu;
+            db.runQuery(UPDATE_BoxDoor_STATE,updateBoxDoorQuery);
+          }
+        } else if(pinStates[i] == LOW){
+          if(updateBoxDoorQuery.kastenID!="-1" && updateBoxDoorQuery.kastenID!="-2" && updateBoxDoorQuery.kastenID!="-3")
+          {
+            updateBoxDoorQuery.tuerZustand=BoxDoorStateEnum::Auf;
+            db.runQuery(UPDATE_BoxDoor_STATE,updateBoxDoorQuery);
+          }
+          }
+        previousReadings[i] = pinStates[i]; // Update previous reading
+      }
+    }
+    delete[] pinStates; // Free the dynamically allocated memory
+  }
 }
