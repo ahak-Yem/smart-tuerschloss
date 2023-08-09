@@ -50,15 +50,15 @@ namespace BuchungZustandEnum {
 
 //Struct for booking data response.
 struct BookingData {
-    const char* userID;
-    const char* buchungID;
-    const char* reservierungsdatum;
-    const char* rueckgabedatum;
-    const char* zustandBuchung;
-    const char* schluesselID;
-    const char* zustandSchluessel;
-    const char* kastenID;
-    const char* Kasten_Node_ID;
+    String userID;
+    String buchungID;
+    String reservierungsdatum;
+    String rueckgabedatum;
+    String zustandBuchung;
+    String schluesselID;
+    String zustandSchluessel;
+    String kastenID;
+    String Kasten_Node_ID;
 };
 
 //Struct to hold parameters for the UpdateKeyState query.
@@ -118,7 +118,6 @@ private:
     std::vector<BookingData> currentBookings;
     const char* serverURL;
     std::vector<JsonObject> deserializeJsonObj(String payload);
-    BookingData extractBookingData(JsonObject data);
     bool processBookingData(std::vector<JsonObject> data);
     void updateKeyState(UpdateKeyStateQuery updateKeyQuery);
     void updateBookingState(UpdateBookingStateQuery updateBookingQuery);
@@ -126,7 +125,7 @@ private:
     void updateKastenZugangState(UpdateKastenZugangState updateKastenState);
     String urlEncode(String value);
     String correctDrupalTimestamp(const char* timestamp);
-
+    void correctDrupalTimestamp2(char* timestamp);
 };
 
 #endif

@@ -12,8 +12,6 @@ DB::~DB(){
 void DB::runQuery(QueryName query, FetchBookingDataQuery fetchParameter) {
     // Perform the HTTP POST request to fetch data from the server
     HTTPClient http;
-    http.setTimeout(30000); // Set timeout to 30 seconds
-    http.clearAllCookies();
     
     String queryURL;
     String uid = fetchParameter.uid;
@@ -40,6 +38,7 @@ void DB::runQuery(QueryName query, FetchBookingDataQuery fetchParameter) {
 
             if (httpCode == HTTP_CODE_OK) {
                 String payload = http.getString();
+                Serial.println(payload);
                 std::vector<JsonObject> jsonObjects = deserializeJsonObj(payload);
                 processBookingData(jsonObjects);
             } else {
@@ -137,6 +136,8 @@ std::vector<BookingData> DB::getCurrentBookings()
 
 //Deserialize the JSON response and create a vector of json objects.
 std::vector<JsonObject> DB::deserializeJsonObj(String payload) {
+    // //TODO:remove
+    // Serial.println("deserializeJsonObj() is running"); 
     // Calculate the required capacity dynamically based on payload size
     const size_t capacity = JSON_OBJECT_SIZE(1) + JSON_ARRAY_SIZE(10) + 10 * JSON_OBJECT_SIZE(9) + payload.length();
     DynamicJsonDocument doc(capacity);
@@ -164,35 +165,47 @@ std::vector<JsonObject> DB::deserializeJsonObj(String payload) {
     return jsonObjects;
 }
 
-//Extracts only BookingData from a JSON object.
-BookingData DB::extractBookingData(JsonObject obj){
-    BookingData bookingData;
-    bookingData.userID = obj["UserID"];
-    bookingData.buchungID = obj["Buchung_ID"];
-    String correctedReservierungsdatum = this->correctDrupalTimestamp(obj["Reservierungsdatum"]);
-    bookingData.reservierungsdatum = strdup(correctedReservierungsdatum.c_str());
-
-    String correctedRueckgabedatum = this->correctDrupalTimestamp(obj["Rueckgabedatum"]);
-    bookingData.rueckgabedatum = strdup(correctedRueckgabedatum.c_str());
-
-    bookingData.zustandBuchung = obj["Buchung_Zustand"];
-    bookingData.schluesselID = obj["SchluesselID"];
-    bookingData.zustandSchluessel = obj["Schluessel_Zustand"];
-    bookingData.kastenID = obj["KastenID"];
-    bookingData.Kasten_Node_ID = obj["Kasten_Node_ID"];
-    
-    return bookingData; 
-};
-
 //Do something with booking data.
 bool DB::processBookingData(std::vector<JsonObject> data) {
+    Serial.println("processBookingData() is running"); 
     if (data.size() > 0) {
-        for (JsonObject obj : data) 
-        {
-            BookingData bookingData=extractBookingData(obj);
-            this->currentBookings.push_back(bookingData);
-            // // Do something with the booking data, e.g., print, process, etc.
-            // // Print the extracted data for now
+        for (std::vector<JsonObject>::iterator it = data.begin(); it != data.end(); ++it) {
+            JsonObject obj = *it;
+            if (!obj.isNull()) {
+                BookingData bookingData;
+                bookingData.userID = obj["UserID"].as<String>();
+                bookingData.buchungID = obj["Buchung_ID"].as<String>();
+                bookingData.reservierungsdatum = this->correctDrupalTimestamp(obj["Reservierungsdatum"]);
+                bookingData.rueckgabedatum = this->correctDrupalTimestamp(obj["Rueckgabedatum"]);
+                bookingData.zustandBuchung = obj["Buchung_Zustand"].as<String>();
+                bookingData.schluesselID = obj["SchluesselID"].as<String>();
+                bookingData.zustandSchluessel = obj["Schluessel_Zustand"].as<String>();
+                bookingData.kastenID = obj["KastenID"].as<String>();
+                bookingData.Kasten_Node_ID = obj["Kasten_Node_ID"].as<String>();
+                this->currentBookings.push_back(bookingData);
+
+                // Print the extracted data.
+                Serial.print("UserID: "); Serial.println(bookingData.userID);
+                Serial.print("Buchung_ID: "); Serial.println(bookingData.buchungID);
+                Serial.print("Reservierungsdatum: "); Serial.println(bookingData.reservierungsdatum);
+                Serial.print("Rueckgabedatum: "); Serial.println(bookingData.rueckgabedatum);
+                Serial.print("Zustand (Buchung): "); Serial.println(bookingData.zustandBuchung);
+                Serial.print("SchluesselID: "); Serial.println(bookingData.schluesselID);
+                Serial.print("Zustand (Schluessel): "); Serial.println(bookingData.zustandSchluessel);
+                Serial.print("Kasten_ID: "); Serial.println(bookingData.kastenID);
+                Serial.println();
+            } else {
+                Serial.println("Invalid JSON data for booking.");
+            }
+        }
+        return true;
+    } else {
+        Serial.println("No records found for the given RFID_UID."); 
+        return false;             
+    }           
+}
+
+            // Print the extracted data for now
             // Serial.print("UserID: "); Serial.println(bookingData.userID);
             // Serial.print("Buchung_ID: "); Serial.println(bookingData.buchungID);
             // Serial.print("Reservierungsdatum: "); Serial.println(bookingData.reservierungsdatum);
@@ -203,14 +216,6 @@ bool DB::processBookingData(std::vector<JsonObject> data) {
             // Serial.print("Kasten_ID: "); Serial.println(bookingData.kastenID);
             // Serial.println();
             // delay(10000);//TODO:remove
-        }   
-        return true;
-    }
-    else{
-        Serial.println("No records found for the given RFID_UID."); 
-        return false;             
-    }           
-};
 
 void DB::updateKeyState(UpdateKeyStateQuery updateKeyQuery)
 {
@@ -249,7 +254,6 @@ void DB::updateKeyState(UpdateKeyStateQuery updateKeyQuery)
         }
     }
 };
-
 
 void DB::updateBookingState(UpdateBookingStateQuery updateBookingQuery)
 {
@@ -404,6 +408,17 @@ String DB::correctDrupalTimestamp(const char *timestamp)
         correctedTimestamp[position] = ' '; // Replace 'T' with space
     }
     return correctedTimestamp;
+};
+
+void DB::correctDrupalTimestamp2(char* timestamp) {
+    int position = 0;
+    while (timestamp[position] != '\0') {
+        if (timestamp[position] == 'T') {
+            timestamp[position] = ' ';
+            break; // Assuming there's only one 'T'
+        }
+        position++;
+    }
 };
 
 String DB::keyStateToString(KeyStateEnum::KeyState state) {
