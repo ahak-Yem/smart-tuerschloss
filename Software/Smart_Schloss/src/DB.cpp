@@ -250,7 +250,7 @@ void DB::updateKeyState(UpdateKeyStateQuery updateKeyQuery)
     }
 };
 
-//TODO(Need to be fixed with Julien)
+
 void DB::updateBookingState(UpdateBookingStateQuery updateBookingQuery)
 {
     /// Perform the HTTP GET request to update data in the buchung table
@@ -272,7 +272,7 @@ void DB::updateBookingState(UpdateBookingStateQuery updateBookingQuery)
 
     if (buchungID != "" && buchungID != "0" && updateBookingQuery.zustand >= BuchungZustandEnum::gebucht && updateBookingQuery.zustand <= BuchungZustandEnum::spaet) {
         StaticJsonDocument<256> requestBody;
-        requestBody["buchungID"] = buchungID;
+        requestBody["buchungId"] = buchungID;
         requestBody["zustand"]=zustand;
         if (abholungszeit != "null" && abholungszeit !="") {
             requestBody["abholungszeit"]=abholungszeit;

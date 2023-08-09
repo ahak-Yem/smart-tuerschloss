@@ -196,7 +196,6 @@ void rfidReaderTrigger(String content) {
         delay(50);
 
         //Step8: Update booking state
-        //TODO:Fix with Julien
         updateBookingQuery.buchungID=booking.buchungID;
         if(String(booking.zustandBuchung)==db.bookingZustandToString(BuchungZustandEnum::gebucht)){
           String currentTimestamp= timeManager.getCurrentDateTime();
