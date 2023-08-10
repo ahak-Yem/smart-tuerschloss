@@ -90,7 +90,7 @@ Lock lock;
 
 void setup() {
   Serial.begin(115200);
-  
+
   //pins expander
   pinsExpander.setup();
   pinsExpander.setPinModeOutput(outputPins,numberOfOutputPins);
@@ -233,7 +233,7 @@ void rfidReaderTrigger(String content) {
 }
 
 void doorSensorTrigger(int countOfCurrentSensors){
-
+  Serial.println("Door Sensor is reading");
   //To be sure that count of sensors does not exceed the number of pins declared at the beginning
   if(countOfCurrentSensors>numberOfInputPins){
     countOfCurrentSensors=numberOfInputPins;
@@ -250,17 +250,20 @@ void doorSensorTrigger(int countOfCurrentSensors){
         DB db(serverURL);
         // State changed, handle accordingly
         if (pinStates[i] == HIGH) {
+          Serial.println("Pin is HIGH");
           if(updateBoxDoorQuery.kastenID!="-1" && updateBoxDoorQuery.kastenID!="-2" && updateBoxDoorQuery.kastenID!="-3"){
             updateBoxDoorQuery.tuerZustand=BoxDoorStateEnum::Zu;
             db.runQuery(UPDATE_BoxDoor_STATE,updateBoxDoorQuery);
           }
         } else if(pinStates[i] == LOW){
+          Serial.println("Pin is LOW");
           if(updateBoxDoorQuery.kastenID!="-1" && updateBoxDoorQuery.kastenID!="-2" && updateBoxDoorQuery.kastenID!="-3")
           {
+            Serial.println("Updating door state");
             updateBoxDoorQuery.tuerZustand=BoxDoorStateEnum::Auf;
             db.runQuery(UPDATE_BoxDoor_STATE,updateBoxDoorQuery);
           }
-          }
+        }
         previousReadings[i] = pinStates[i]; // Update previous reading
       }
     }
