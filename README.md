@@ -132,10 +132,12 @@ git clone https://gitlab.rz.htw-berlin.de/fachpro-23/03-smart-tuerschloss.git.
  Öffnen Sie die PlatformIO Library Manager, indem Sie auf das PlatformIO-Symbol in der linken Seitenleiste klicken und dann auf "Libraries" (Bibliotheken) klicken. 
 Suchen Sie nach den Bibliotheken und installieren : 
  + "Arduino" 
- + "MFRC522" 
- + "SPI" 
+ + "Adafruit MCP2301" 
+ + "Adafruit PN532" 
+ + "ArduinoJson"
+ + "NTPClient"
 
-  Externe Bibliothek "quirc.h" einbinden: Laden Sie die externe Bibliothek "quirc.h" von folgender URL herunter: https://github.com/dlbeer/quirc. Entpacken Sie das heruntergeladene Archiv und kopieren Sie den Ordner "quirc" in das Verzeichnis "lib" im Projektordner.
+  Externe Bibliothek "quirc.h" einbinden Laden Sie die externe Bibliothek "quirc.h" von folgender URL herunter: https://github.com/dlbeer/quirc. Entpacken Sie das heruntergeladene Archiv und kopieren Sie den Ordner "quirc" in das Verzeichnis "lib" im Projektordner.
 
 ### Code einführen : 
 * Verbindung herstellen: Verbinden Sie den ESP32 über das USB-Kabel mit Ihrem Computer. Stellen Sie sicher, dass der richtige Port in der PlatformIO-Konfiguration ausgewählt ist, um die Verbindung herzustellen.
